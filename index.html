@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISBO - Registro de Equipamiento</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2pdf -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <!-- Logo -->
+    <link rel="icon" href="assets/img/logo.png">
+</head>
+
+<body>
+    <header class="app-header">
+        <div class="logo-container">
+            <!-- Asumiendo que el usuario colocará su logo aquí, por ahora usamos texto estilizado -->
+            <div class="logo-placeholder">
+                <img src="assets/img/logo.png" width="100" alt="Logo ISBO">
+            </div>
+            <h1>Registro de Equipamiento</h1>
+        </div>
+        <nav class="nav-tabs">
+            <button class="tab-btn active" data-target="view-checkout"><i class="fas fa-sign-out-alt"></i>
+                Retirar</button>
+            <button class="tab-btn" data-target="view-return"><i class="fas fa-sign-in-alt"></i> Devolver</button>
+            <button class="tab-btn admin-btn" data-target="view-admin"><i class="fas fa-lock"></i> Admin</button>
+        </nav>
+    </header>
+
+    <main class="app-main">
+        <!-- Notificaciones -->
+        <div id="notification-area" class="notification-area"></div>
+
+        <!-- VISTA: RETIRAR EQUIPO -->
+        <section id="view-checkout" class="view-section active">
+            <div class="card glass-card">
+                <h2><i class="fas fa-laptop"></i> Registrar Retiro</h2>
+                <p class="subtitle">Ingresa tus datos y detalla el equipamiento a retirar.</p>
+
+                <form id="checkout-form" class="dynamic-form">
+                    <div class="form-group">
+                        <label for="ci"><i class="fas fa-id-card"></i> Cédula de Identidad</label>
+                        <input type="text" id="ci" name="ci" required placeholder="Ej: 12345678" minlength="7"
+                            maxlength="8" pattern="[0-9\-]+" title="Solo números y sin puntos ni guiones">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name"><i class="fas fa-user"></i> Nombre y Apellido</label>
+                            <input type="text" id="name" name="name" required placeholder="Tu nombre completo">
+                        </div>
+                        <div class="form-group">
+                            <label for="group"><i class="fas fa-users"></i> Grupo (Opcional)</label>
+                            <input type="text" id="group" name="group" placeholder="Ej: 3º Informática">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="equipment"><i class="fas fa-keyboard"></i> Equipamiento a Retirar</label>
+                        <textarea id="equipment" name="equipment" required
+                            placeholder="Ej: Ceibalita 002, Cable HDMI, Control Proyector 16..." rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group signature-group">
+                        <label><i class="fas fa-pen-nib"></i> Firma</label>
+                        <div class="canvas-container">
+                            <canvas id="checkout-signature-pad"></canvas>
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-clear"
+                            data-canvas="checkout-signature-pad">Limpiar Firma</button>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-check-circle"></i>
+                        Confirmar Retiro</button>
+                    <button type="button" class="btn btn-secondary btn-block" id="btn-clear-checkout">Limpiar
+                        Formulario</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- VISTA: DEVOLVER EQUIPO -->
+        <section id="view-return" class="view-section hidden">
+            <div class="card glass-card">
+                <h2><i class="fas fa-undo"></i> Registrar Devolución</h2>
+                <p class="subtitle">Busca tus préstamos activos por tu Cédula.</p>
+
+                <div class="search-box form-group">
+                    <label for="return-ci"><i class="fas fa-search"></i> Tu Cédula de Identidad</label>
+                    <div class="input-with-btn">
+                        <input type="text" id="return-ci" placeholder="Ingresa tu CI para buscar..." minlength="7"
+                            maxlength="8" pattern="[0-9\-]+" title="Solo números y sin puntos ni guiones">
+                        <button type="button" id="btn-search-loans" class="btn btn-primary"><i
+                                class="fas fa-search"></i> Buscar</button>
+                        <button type="button" id="btn-clear-search-ci" class="btn btn-secondary">Limpiar</button>
+                    </div>
+                </div>
+
+                <div id="active-loans-container" class="hidden mt-4">
+                    <h3>Tus préstamos activos:</h3>
+                    <div id="loans-list" class="loans-list">
+                        <!-- Generado dinámicamente -->
+                    </div>
+
+                    <div id="return-details" class="hidden mt-4 animate-fade-in">
+                        <form id="return-form">
+                            <input type="hidden" id="return-loan-id">
+
+                            <div class="form-group">
+                                <label for="return-obs"><i class="fas fa-comment-dots"></i> Observaciones
+                                    (Opcional)</label>
+                                <input type="text" id="return-obs"
+                                    placeholder="Ej: Falta pila del control, cable dañado...">
+                            </div>
+
+                            <div class="form-group signature-group">
+                                <label><i class="fas fa-pen-nib"></i> Firma de Devolución</label>
+                                <div class="canvas-container">
+                                    <canvas id="return-signature-pad"></canvas>
+                                </div>
+                                <button type="button" class="btn btn-secondary btn-clear"
+                                    data-canvas="return-signature-pad">Limpiar Firma</button>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-check-double"></i>
+                                Confirmar Devolución</button>
+
+                            <button type="button" class="btn btn-secondary btn-block" id="btn-clear-return">Limpiar
+                                Formulario</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VISTA: ADMINISTRADOR -->
+        <section id="view-admin" class="view-section hidden">
+            <div class="card glass-card" id="admin-login-card">
+                <h2><i class="fas fa-lock"></i> Acceso Administrador</h2>
+                <form id="login-form" class="dynamic-form mt-4">
+                    <div class="form-group">
+                        <label for="username">Usuario</label>
+                        <input type="text" id="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Contraseña</label>
+                        <input type="password" id="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Ingresar</button>
+                </form>
+            </div>
+
+            <div id="admin-dashboard" class="hidden">
+                <div class="dashboard-header">
+                    <h2>Panel de Control</h2>
+                    <div class="dashboard-actions">
+                        <button id="btn-export-pdf" class="btn btn-secondary"><i class="fas fa-file-pdf"></i> Exportar a
+                            PDF</button>
+                        <button id="btn-logout" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i>
+                            Salir</button>
+                    </div>
+                </div>
+
+                <!-- Métricas KPI -->
+                <div class="metrics-grid mt-4">
+                    <div class="metric-card metric-today">
+                        <div class="metric-icon"><i class="fas fa-calendar-day"></i></div>
+                        <div class="metric-value" id="metric-today">0</div>
+                        <div class="metric-label">Préstamos Hoy</div>
+                    </div>
+                    <div class="metric-card metric-active">
+                        <div class="metric-icon"><i class="fas fa-clock"></i></div>
+                        <div class="metric-value" id="metric-active">0</div>
+                        <div class="metric-label">Activos</div>
+                    </div>
+                    <div class="metric-card metric-returned">
+                        <div class="metric-icon"><i class="fas fa-check-circle"></i></div>
+                        <div class="metric-value" id="metric-returned">0</div>
+                        <div class="metric-label">Devueltos Hoy</div>
+                    </div>
+                    <div class="metric-card metric-delayed">
+                        <div class="metric-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                        <div class="metric-value" id="metric-delayed">0</div>
+                        <div class="metric-label">Retrasados</div>
+                    </div>
+                </div>
+
+                <div class="admin-tabs mt-4">
+                    <button class="admin-tab-btn active" data-target="admin-pending">Pendientes / Alertas</button>
+                    <button class="admin-tab-btn" data-target="admin-history">Historial Completo</button>
+                    <button class="admin-tab-btn" data-target="admin-reports">Reportes</button>
+                </div>
+
+                <div id="admin-pending" class="admin-section active">
+                    <div class="table-responsive">
+                        <table class="data-table" id="table-pending">
+                            <thead>
+                                <tr>
+                                    <th>Fecha Retiro</th>
+                                    <th>Cédula</th>
+                                    <th>Nombre</th>
+                                    <th>Equipamiento</th>
+                                    <th>Firma Retiro</th>
+                                    <th>Alerta</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Cargado dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="admin-history" class="admin-section hidden">
+                    <!-- Filtros de fecha -->
+                    <div class="date-filter-bar">
+                        <div class="filter-group">
+                            <label for="date-from"><i class="fas fa-calendar"></i> Desde</label>
+                            <input type="date" id="date-from">
+                        </div>
+                        <div class="filter-group">
+                            <label for="date-to"><i class="fas fa-calendar"></i> Hasta</label>
+                            <input type="date" id="date-to">
+                        </div>
+                        <button id="btn-filter-dates" class="btn btn-primary btn-sm"><i class="fas fa-filter"></i>
+                            Filtrar</button>
+                        <button id="btn-clear-filter" class="btn btn-secondary btn-sm"><i class="fas fa-times"></i>
+                            Limpiar</button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="data-table" id="table-history">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Retiro</th>
+                                    <th>Cédula</th>
+                                    <th>Nombre</th>
+                                    <th>Equipamiento</th>
+                                    <th>Firma Retiro</th>
+                                    <th>Devolución</th>
+                                    <th>Firma Devolución</th>
+                                    <th>Observaciones</th>
+                                    <th>Estado</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Cargado dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="admin-reports" class="admin-section hidden">
+                    <div class="report-summary">
+                        <h3><i class="fas fa-chart-bar"></i> Resumen General</h3>
+                        <div class="report-stats">
+                            <div class="report-stat">
+                                <span class="report-stat-value" id="report-total">0</span>
+                                <span class="report-stat-label">Total Histórico</span>
+                            </div>
+                            <div class="report-stat">
+                                <span class="report-stat-value" id="report-active">0</span>
+                                <span class="report-stat-label">Sin Devolver</span>
+                            </div>
+                            <div class="report-stat">
+                                <span class="report-stat-value" id="report-delayed">0</span>
+                                <span class="report-stat-label">Retrasados</span>
+                            </div>
+                        </div>
+                        <div class="report-actions mt-4">
+                            <button id="btn-pdf-full" class="btn btn-primary"><i class="fas fa-file-pdf"></i> Reporte
+                                Completo (PDF)</button>
+                            <button id="btn-pdf-pending" class="btn btn-secondary"><i class="fas fa-file-pdf"></i> Solo
+                                Pendientes (PDF)</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal para firma ampliada -->
+            <div id="signature-modal" class="signature-modal hidden">
+                <div class="signature-modal-content">
+                    <button class="signature-modal-close" id="close-sig-modal"><i class="fas fa-times"></i></button>
+                    <h3 id="sig-modal-title">Firma</h3>
+                    <img id="sig-modal-img" src="" alt="Firma ampliada">
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Scripts -->
+    <script src="assets/js/signature.js"></script>
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/app.js"></script>
+
+</body>
+
+</html>

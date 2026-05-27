@@ -20,7 +20,7 @@
 </head>
 
 <body>
-    <header class="app-header">
+    <header class="app-header" role="banner">
         <div class="logo-container">
             <!-- Asumiendo que el usuario colocará su logo aquí, por ahora usamos texto estilizado -->
             <div class="logo-placeholder">
@@ -28,11 +28,14 @@
             </div>
             <h1>Registro de Equipamiento</h1>
         </div>
-        <nav class="nav-tabs">
-            <button class="tab-btn active" data-target="view-checkout"><i class="fas fa-sign-out-alt"></i>
+        <nav class="nav-tabs" role="navigation" aria-label="Navegación principal">
+            <button class="tab-btn active" data-target="view-checkout" aria-label="Ir a Retirar equipamiento"><i
+                    class="fas fa-sign-out-alt" aria-hidden="true"></i>
                 Retirar</button>
-            <button class="tab-btn" data-target="view-return"><i class="fas fa-sign-in-alt"></i> Devolver</button>
-            <button class="tab-btn admin-btn" data-target="view-admin"><i class="fas fa-lock"></i> Admin</button>
+            <button class="tab-btn" data-target="view-return" aria-label="Ir a Devolver equipamiento"><i
+                    class="fas fa-sign-in-alt" aria-hidden="true"></i> Devolver</button>
+            <button class="tab-btn admin-btn" data-target="view-admin" aria-label="Ir a Panel de administrador"><i
+                    class="fas fa-lock" aria-hidden="true"></i> Admin</button>
         </nav>
     </header>
 
@@ -41,99 +44,117 @@
         <div id="notification-area" class="notification-area"></div>
 
         <!-- VISTA: RETIRAR EQUIPO -->
-        <section id="view-checkout" class="view-section active">
+        <section id="view-checkout" class="view-section active" aria-label="Formulario de retiro de equipamiento">
             <div class="card glass-card">
-                <h2><i class="fas fa-laptop"></i> Registrar Retiro</h2>
+                <h2><i class="fas fa-laptop" aria-hidden="true"></i> Registrar Retiro</h2>
                 <p class="subtitle">Ingresa tus datos y detalla el equipamiento a retirar.</p>
 
                 <form id="checkout-form" class="dynamic-form">
                     <div class="form-group">
-                        <label for="ci"><i class="fas fa-id-card"></i> Cédula de Identidad</label>
+                        <label for="ci"><i class="fas fa-id-card" aria-hidden="true"></i> Cédula de Identidad</label>
                         <input type="text" id="ci" name="ci" required placeholder="Ej: 12345678" minlength="7"
-                            maxlength="8" pattern="[0-9\-]+" title="Solo números y sin puntos ni guiones">
+                            maxlength="8" pattern="[0-9\-]+" title="Solo números y sin puntos ni guiones"
+                            aria-required="true" aria-describedby="ci-hint">
+                        <small id="ci-hint" style="display: none;">Ingresa solo números, entre 7 y 8 dígitos</small>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="name"><i class="fas fa-user"></i> Nombre y Apellido</label>
-                            <input type="text" id="name" name="name" required placeholder="Tu nombre completo">
+                            <label for="name"><i class="fas fa-user" aria-hidden="true"></i> Nombre y Apellido</label>
+                            <input type="text" id="name" name="name" required placeholder="Tu nombre completo"
+                                aria-required="true">
                         </div>
                         <div class="form-group">
-                            <label for="group"><i class="fas fa-users"></i> Grupo (Opcional)</label>
+                            <label for="group"><i class="fas fa-users" aria-hidden="true"></i> Grupo (Opcional)</label>
                             <input type="text" id="group" name="group" placeholder="Ej: 3º Informática">
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="equipment"><i class="fas fa-keyboard"></i> Equipamiento a Retirar</label>
+                        <label for="equipment"><i class="fas fa-keyboard" aria-hidden="true"></i> Equipamiento a
+                            Retirar</label>
                         <textarea id="equipment" name="equipment" required
-                            placeholder="Ej: Ceibalita 002, Cable HDMI, Control Proyector 16..." rows="3"></textarea>
+                            placeholder="Ej: Ceibalita 002, Cable HDMI, Control Proyector 16..." rows="5"
+                            aria-required="true"></textarea>
                     </div>
 
                     <div class="form-group signature-group">
-                        <label><i class="fas fa-pen-nib"></i> Firma</label>
+                        <label><i class="fas fa-pen-nib" aria-hidden="true"></i> Firma</label>
                         <div class="canvas-container">
-                            <canvas id="checkout-signature-pad"></canvas>
+                            <canvas id="checkout-signature-pad" role="img" aria-label="Área de firma digital"></canvas>
                         </div>
-                        <button type="button" class="btn btn-secondary btn-clear"
-                            data-canvas="checkout-signature-pad">Limpiar Firma</button>
+                        <button type="button" class="btn btn-secondary btn-clear" data-canvas="checkout-signature-pad"
+                            aria-label="Limpiar firma digital">Limpiar Firma</button>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-check-circle"></i>
+                    <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-check-circle"
+                            aria-hidden="true"></i>
                         Confirmar Retiro</button>
-                    <button type="button" class="btn btn-secondary btn-block" id="btn-clear-checkout">Limpiar
+                    <button type="button" class="btn btn-secondary btn-block" id="btn-clear-checkout"
+                        aria-label="Borrar todos los campos del formulario">Limpiar
                         Formulario</button>
                 </form>
             </div>
         </section>
 
         <!-- VISTA: DEVOLVER EQUIPO -->
-        <section id="view-return" class="view-section hidden">
+        <section id="view-return" class="view-section hidden" aria-label="Formulario de devolución de equipamiento">
             <div class="card glass-card">
-                <h2><i class="fas fa-undo"></i> Registrar Devolución</h2>
+                <h2><i class="fas fa-undo" aria-hidden="true"></i> Registrar Devolución</h2>
                 <p class="subtitle">Busca tus préstamos activos por tu Cédula.</p>
 
                 <div class="search-box form-group">
-                    <label for="return-ci"><i class="fas fa-search"></i> Tu Cédula de Identidad</label>
+                    <label for="return-ci"><i class="fas fa-search" aria-hidden="true"></i> Tu Cédula de
+                        Identidad</label>
                     <div class="input-with-btn">
                         <input type="text" id="return-ci" placeholder="Ingresa tu CI para buscar..." minlength="7"
-                            maxlength="8" pattern="[0-9\-]+" title="Solo números y sin puntos ni guiones">
-                        <button type="button" id="btn-search-loans" class="btn btn-primary"><i
-                                class="fas fa-search"></i> Buscar</button>
-                        <button type="button" id="btn-clear-search-ci" class="btn btn-secondary">Limpiar</button>
+                            maxlength="8" pattern="[0-9\-]+" title="Solo números y sin puntos ni guiones"
+                            aria-label="Cédula de identidad para búsqueda">
+                        <button type="button" id="btn-search-loans" class="btn btn-primary"
+                            aria-label="Buscar préstamos activos"><i class="fas fa-search" aria-hidden="true"></i>
+                            Buscar</button>
+                        <button type="button" id="btn-clear-search-ci" class="btn btn-secondary"
+                            aria-label="Limpiar búsqueda">Limpiar</button>
                     </div>
                 </div>
 
                 <div id="active-loans-container" class="hidden mt-4">
                     <h3>Tus préstamos activos:</h3>
-                    <div id="loans-list" class="loans-list">
+                    <div id="loans-list" class="loans-list" role="list" aria-label="Préstamos activos para seleccionar">
                         <!-- Generado dinámicamente -->
                     </div>
 
                     <div id="return-details" class="hidden mt-4 animate-fade-in">
-                        <form id="return-form">
+                        <form id="return-form" aria-label="Formulario de devolución de equipamiento">
                             <input type="hidden" id="return-loan-id">
 
                             <div class="form-group">
-                                <label for="return-obs"><i class="fas fa-comment-dots"></i> Observaciones
+                                <label for="return-obs"><i class="fas fa-comment-dots" aria-hidden="true"></i>
+                                    Observaciones
                                     (Opcional)</label>
                                 <input type="text" id="return-obs"
-                                    placeholder="Ej: Falta pila del control, cable dañado...">
+                                    placeholder="Ej: Falta pila del control, cable dañado..."
+                                    aria-label="Observaciones sobre el estado del equipamiento">
                             </div>
 
                             <div class="form-group signature-group">
-                                <label><i class="fas fa-pen-nib"></i> Firma de Devolución</label>
+                                <label><i class="fas fa-pen-nib" aria-hidden="true"></i> Firma de Devolución</label>
                                 <div class="canvas-container">
-                                    <canvas id="return-signature-pad"></canvas>
+                                    <canvas id="return-signature-pad" role="img"
+                                        aria-label="Área de firma digital de devolución"></canvas>
                                 </div>
                                 <button type="button" class="btn btn-secondary btn-clear"
-                                    data-canvas="return-signature-pad">Limpiar Firma</button>
+                                    data-canvas="return-signature-pad" aria-label="Limpiar firma de devolución">Limpiar
+                                    Firma</button>
                             </div>
 
-                            <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-check-double"></i>
+                            <button type="submit" class="btn btn-primary btn-block"
+                                aria-label="Confirmar devolución del equipamiento"><i class="fas fa-check-double"
+                                    aria-hidden="true"></i>
                                 Confirmar Devolución</button>
 
-                            <button type="button" class="btn btn-secondary btn-block" id="btn-clear-return">Limpiar
+                            <button type="button" class="btn btn-secondary btn-block" id="btn-clear-return"
+                                aria-label="Limpiar formulario de devolución">Limpiar
                                 Formulario</button>
                         </form>
                     </div>

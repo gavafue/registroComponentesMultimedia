@@ -28,7 +28,8 @@ elseif ($requestMethod === 'GET' && $action === 'check') {
     if (isset($_SESSION['user_id'])) {
         sendJsonResponse(['logged_in' => true, 'username' => $_SESSION['username']]);
     } else {
-        sendJsonResponse(['logged_in' => false], 401);
+        // Devolver 200 con logged_in:false para que la comprobación no se trate como error
+        sendJsonResponse(['logged_in' => false], 200);
     }
 }
 elseif ($requestMethod === 'POST' && $action === 'logout') {

@@ -214,7 +214,16 @@ document.getElementById('btn-search-loans').addEventListener('click', async () =
     try {
         const loans = await API.getActiveLoansByCI(ci);
         const container = document.getElementById('active-loans-container');
-        const list = document.getElementById('loans-list');
+        let list = document.getElementById('loans-list');
+
+        if (!list) {
+            list = document.createElement('div');
+            list.id = 'loans-list';
+            list.className = 'loans-list';
+            list.setAttribute('role', 'list');
+            list.setAttribute('aria-label', 'Préstamos activos para seleccionar');
+            container.appendChild(list);
+        }
 
         list.innerHTML = '';
 
@@ -274,7 +283,11 @@ document.getElementById('return-form').addEventListener('submit', async (e) => {
         document.getElementById('return-details').classList.add('hidden');
 
         // Limpiar lista de préstamos y volver arriba
-        document.getElementById('active-loans-container').innerHTML = '';
+        const loansContainer = document.getElementById('active-loans-container');
+        const loansList = document.getElementById('loans-list');
+        if (loansList) loansList.innerHTML = '';
+        if (loansContainer) loansContainer.classList.add('hidden');
+        document.getElementById('return-details').classList.add('hidden');
         window.scrollTo(0, 0);
         setTimeout(() => document.getElementById('return-ci').focus(), 100);
     } catch (error) {
@@ -293,7 +306,9 @@ document.getElementById('btn-clear-return').addEventListener('click', (e) => {
 
     // Opcional: volver a mostrar la búsqueda o el mensaje inicial
     document.getElementById('return-details').classList.add('hidden');
-    document.getElementById('active-loans-container').innerHTML = ''; // limpiar lista también
+    const loansList = document.getElementById('loans-list');
+    if (loansList) loansList.innerHTML = '';
+    document.getElementById('active-loans-container').classList.add('hidden');
 
     setTimeout(() => {
         document.getElementById('return-ci').focus();
@@ -416,14 +431,16 @@ async function loadPendingTable() {
     }
 }
 
-// --- Variable global para historial (para filtros) ---
+// --- Variables globales para historial (para filtros) ---
 let allHistoryLoans = [];
+let currentHistoryLoans = [];
 
 // --- Tabla Historial (con firmas y observaciones) ---
 async function loadHistoryTable() {
     try {
         const loans = await API.getAllLoans();
         allHistoryLoans = loans;
+        currentHistoryLoans = loans;
         renderHistoryTable(loans);
     } catch (e) {
         UI.showToast(e.message, 'error');
@@ -431,6 +448,7 @@ async function loadHistoryTable() {
 }
 
 function renderHistoryTable(loans) {
+    currentHistoryLoans = loans;
     const tbody = document.querySelector('#table-history tbody');
     tbody.innerHTML = '';
 
@@ -510,17 +528,21 @@ document.querySelector('#table-history tbody').addEventListener('click', async (
 document.getElementById('btn-filter-dates').addEventListener('click', () => {
     const from = document.getElementById('date-from').value;
     const to = document.getElementById('date-to').value;
+    const status = document.getElementById('status-filter').value;
 
-    if (!from && !to) {
-        UI.showToast('Selecciona al menos una fecha', 'error');
+    if (!from && !to && !status) {
+        renderHistoryTable(allHistoryLoans);
+        UI.showToast('Mostrando todos los registros', 'info');
         return;
     }
 
     const filtered = allHistoryLoans.filter(loan => {
         const loanDate = loan.checkout_time.split(' ')[0]; // YYYY-MM-DD
-        if (from && to) return loanDate >= from && loanDate <= to;
-        if (from) return loanDate >= from;
-        if (to) return loanDate <= to;
+
+        if (from && to && !(loanDate >= from && loanDate <= to)) return false;
+        if (from && !to && loanDate < from) return false;
+        if (to && !from && loanDate > to) return false;
+        if (status && loan.status !== status) return false;
         return true;
     });
 
@@ -531,7 +553,16 @@ document.getElementById('btn-filter-dates').addEventListener('click', () => {
 document.getElementById('btn-clear-filter').addEventListener('click', () => {
     document.getElementById('date-from').value = '';
     document.getElementById('date-to').value = '';
+    document.getElementById('status-filter').value = '';
     renderHistoryTable(allHistoryLoans);
+});
+
+document.getElementById('btn-export-filtered-pdf').addEventListener('click', () => {
+    if (!currentHistoryLoans || currentHistoryLoans.length === 0) {
+        UI.showToast('No hay resultados filtrados para exportar', 'error');
+        return;
+    }
+    generatePDFReport('filtered', currentHistoryLoans);
 });
 
 // --- Pestaña Reportes ---
@@ -569,15 +600,13 @@ document.getElementById('signature-modal').addEventListener('click', (e) => {
 
 // --- Generación de PDF con firmas ---
 
-async function generatePDFReport(filterType = 'all') {
+async function generatePDFReport(filterType = 'all', loanSet = null) {
     UI.showToast('Generando PDF...', 'info');
 
     try {
         // Obtener datos
-        const [stats, loans] = await Promise.all([
-            API.getStats(),
-            filterType === 'pending' ? API.getPendingLoans() : API.getAllLoans()
-        ]);
+        const stats = await API.getStats();
+        const loans = loanSet || (filterType === 'pending' ? await API.getPendingLoans() : await API.getAllLoans());
 
         // Crear el contenedor de renderizado — VISIBLE en pantalla para que html2canvas funcione
         const renderArea = document.createElement('div');
@@ -610,9 +639,11 @@ async function generatePDFReport(filterType = 'all') {
         });
         const timeStr = now.toLocaleTimeString('es-UY');
 
-        const title = filterType === 'pending'
-            ? 'Reporte de Préstamos Pendientes'
-            : 'Reporte Completo de Préstamos';
+        const title = loanSet
+            ? 'Reporte Filtrado de Préstamos'
+            : filterType === 'pending'
+                ? 'Reporte de Préstamos Pendientes'
+                : 'Reporte Completo de Préstamos';
 
         // Construir filas de tabla
         let tableRows = '';
@@ -696,9 +727,11 @@ async function generatePDFReport(filterType = 'all') {
 
         const opt = {
             margin: 6,
-            filename: filterType === 'pending'
-                ? 'Reporte_Pendientes_ISBO.pdf'
-                : 'Reporte_Completo_ISBO.pdf',
+            filename: loanSet
+                ? 'Reporte_Filtrado_ISBO.pdf'
+                : filterType === 'pending'
+                    ? 'Reporte_Pendientes_ISBO.pdf'
+                    : 'Reporte_Completo_ISBO.pdf',
             image: { type: 'jpeg', quality: 0.95 },
             html2canvas: {
                 scale: 2,

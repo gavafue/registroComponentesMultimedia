@@ -188,23 +188,8 @@ const checkoutForm = document.getElementById('checkout-form');
     });
 });
 
-// Ctrl+Enter en textarea para enviar
-const equipmentField = document.getElementById('equipment');
-equipmentField.addEventListener('keydown', (e) => {
-    if (e.ctrlKey && e.key === 'Enter') {
-        e.preventDefault();
-        checkoutForm.dispatchEvent(new Event('submit'));
-    }
-});
-
-// Mejorar UX: Mostrar que Ctrl+Enter envía
-equipmentField.addEventListener('focus', () => {
-    equipmentField.setAttribute('placeholder', 'Ej: Ceibalita 002, Cable HDMI, Control Proyector 16...\n\n[Ctrl+Enter para registrar]');
-});
-
-equipmentField.addEventListener('blur', () => {
-    equipmentField.setAttribute('placeholder', 'Ej: Ceibalita 002, Cable HDMI, Control Proyector 16...');
-});
+// Removed keyboard shortcut submission (Ctrl+Enter / Ctrl+X) because it sent empty records.
+// The textarea keeps its HTML placeholder and normal form submission via the Confirmar button.
 
 checkoutForm.addEventListener('submit', async (e) => {
     e.preventDefault();

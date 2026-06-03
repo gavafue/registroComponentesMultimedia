@@ -84,12 +84,33 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group equipment-field-grid">
                         <label for="equipment"><i class="fas fa-keyboard" aria-hidden="true"></i> Equipamiento a
                             Retirar</label>
-                        <textarea id="equipment" name="equipment" required
-                            placeholder="Ej: Ceibalita 002, Cable HDMI, Control Proyector 16..." rows="5"
-                            aria-required="true"></textarea>
+                        <div class="equipment-field-row">
+                            <textarea id="equipment" name="equipment" required
+                                placeholder="Ej: Ceibalita 002, Cable HDMI, Control Proyector 16..." rows="5"
+                                aria-required="true"></textarea>
+                            <div class="equipment-suggestions">
+                                <div class="equipment-suggestion-header">
+                                    <span>Frecuentes:</span>
+                                </div>
+                                <div class="equipment-keyword-list">
+                                    <button type="button"
+                                        class="btn btn-secondary btn-sm equipment-keyword-btn keywords">Ceibalita Negra</button>
+                                    <button type="button"
+                                        class="btn btn-secondary btn-sm equipment-keyword-btn keywords">Ceibalita Blanca</button>
+                                    <button type="button"
+                                        class="btn btn-secondary btn-sm equipment-keyword-btn keywords">Mouse</button>
+                                    <button type="button"
+                                        class="btn btn-secondary btn-sm equipment-keyword-btn keywords">Control</button>
+                                    <button type="button"
+                                        class="btn btn-secondary btn-sm equipment-keyword-btn keywords">Cable HDMI</button>
+                                    <button type="button"
+                                        class="btn btn-secondary btn-sm equipment-keyword-btn keywords">Parlante</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-group signature-group">
@@ -269,6 +290,11 @@
                     <!-- Filtros de fecha -->
                     <div class="date-filter-bar">
                         <div class="filter-group">
+                            <label for="admin-search"><i class="fas fa-search"></i> Buscar</label>
+                            <input type="text" id="admin-search" placeholder="Nombre o Cédula"
+                                aria-label="Buscar por nombre o cédula">
+                        </div>
+                        <div class="filter-group">
                             <label for="date-from"><i class="fas fa-calendar"></i> Desde</label>
                             <input type="date" id="date-from">
                         </div>
@@ -284,13 +310,12 @@
                                 <option value="returned">Devueltos</option>
                             </select>
                         </div>
-                        <button id="btn-filter-dates" class="btn btn-primary btn-sm"><i class="fas fa-filter"></i>
-                            Filtrar</button>
-                        <button id="btn-clear-filter" class="btn btn-secondary btn-sm"><i class="fas fa-times"></i>
-                            Limpiar</button>
-                        <button id="btn-export-filtered-pdf" class="btn btn-secondary btn-sm"><i
-                                class="fas fa-file-pdf"></i>
-                            Exportar filtrado</button>
+                        <button id="btn-filter-dates" class="btn btn-primary btn-sm" aria-label="Filtrar"><i
+                                class="fas fa-filter"></i></button>
+                        <button id="btn-clear-filter" class="btn btn-secondary btn-sm" aria-label="Limpiar"><i
+                                class="fas fa-times"></i></button>
+                        <button id="btn-export-filtered-pdf" class="btn btn-secondary btn-sm"
+                            aria-label="Exportar filtrado"><i class="fas fa-file-pdf"></i></button>
                     </div>
 
                     <div class="table-responsive">
@@ -314,6 +339,11 @@
                                 <!-- Cargado dinámicamente -->
                             </tbody>
                         </table>
+                    </div>
+                    <div class="pagination-bar" id="history-pagination" role="navigation" aria-label="Paginación historial">
+                        <button type="button" id="history-prev-page" class="btn btn-icon small-arrow" aria-label="Anterior"><i class="fas fa-chevron-left" aria-hidden="true"></i></button>
+                        <span id="history-page-info" class="page-info">Página 1 de 1</span>
+                        <button type="button" id="history-next-page" class="btn btn-icon small-arrow" aria-label="Siguiente"><i class="fas fa-chevron-right" aria-hidden="true"></i></button>
                     </div>
                 </div>
 

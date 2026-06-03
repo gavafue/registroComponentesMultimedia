@@ -374,6 +374,171 @@ textarea {
     min-height: 120px;
 }
 
+.equipment-field-row {
+    display: grid;
+    grid-template-columns: 1fr 130px;
+    gap: 0.5rem;
+    align-items: stretch;
+}
+
+.equipment-suggestions {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 0.45rem;
+    padding: 0.45rem;
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid rgba(0, 69, 138, 0.065);
+    border-radius: 10px;
+    min-height: 100%;
+    max-height: calc(100% - 1px);
+}
+
+.equipment-suggestion-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.2rem;
+    margin-bottom: 0;
+}
+
+.equipment-suggestion-header span {
+    color: var(--text-muted);
+    font-size: 0.68rem;
+    font-weight: 700;
+}
+
+.equipment-keyword-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+    max-height: 100%;
+    overflow-y: auto;
+}
+
+.equipment-keyword-btn {
+    padding: 3px 5px;
+    font-size: 0.62rem;
+    border-radius: 999px;
+    background: rgba(0, 69, 138, 0.05);
+    color: var(--text-muted);
+    border: 1px solid rgba(0, 69, 138, 0.08);
+    box-shadow: none;
+    min-height: auto;
+    justify-content: flex-start;
+    text-align: left;
+    line-height: 1.1;
+    max-width: 100%;
+    white-space: normal;
+}
+
+.equipment-keyword-btn:hover {
+    background: rgba(0, 69, 138, 0.12);
+}
+
+.date-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.75rem 0.75rem;
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    border: 1px solid rgba(0, 69, 138, 0.12);
+    flex-wrap: nowrap;
+    overflow-x: auto;
+}
+
+/* History pagination compact styling */
+#history-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 12px 0 24px;
+}
+
+#history-pagination .page-info {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 700;
+}
+
+#history-pagination .small-arrow {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.03);
+    border: 1px solid rgba(0,0,0,0.06);
+    box-shadow: none;
+    font-size: 0.95rem;
+}
+
+#history-pagination .small-arrow[disabled] {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* Ensure small-arrow buttons don't inherit large btn sizing */
+.btn.small-arrow {
+    min-width: 0;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1 1 120px;
+    min-width: 110px;
+    max-width: 140px;
+}
+
+.filter-group label {
+    font-size: 0.76rem;
+    font-weight: 700;
+    margin-bottom: 0;
+    line-height: var(--lh-normal);
+}
+
+.filter-group input[type="date"],
+.filter-group input[type="text"],
+.filter-group select {
+    padding: 8px 10px;
+    font-size: 0.82rem;
+}
+
+
+#btn-filter-dates,
+#btn-clear-filter,
+#btn-export-filtered-pdf {
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+}
+
+#btn-filter-dates i,
+#btn-clear-filter i,
+#btn-export-filtered-pdf i {
+    font-size: 1rem;
+}
+
+.btn-sm {
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    line-height: var(--lh-normal);
+    min-height: 38px;
+}
+
 input:focus,
 textarea:focus {
     outline: none;
@@ -1530,4 +1695,13 @@ input:disabled {
         padding: 12px 20px;
         min-height: 44px;
     }
+}
+
+.keywords {
+    padding: 5px 5px;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    line-height: var(--lh-normal);
+    min-height: 40px;
 }

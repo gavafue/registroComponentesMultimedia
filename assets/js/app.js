@@ -142,6 +142,25 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     });
 });
 
+document.querySelectorAll('.equipment-keyword-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        appendEquipmentKeyword(btn.textContent.trim());
+    });
+});
+
+function appendEquipmentKeyword(keyword) {
+    const field = document.getElementById('equipment');
+    if (!field) return;
+    const current = field.value.trim();
+    if (!current) {
+        field.value = keyword;
+    } else {
+        const separator = current.endsWith(',') || current.endsWith('\n') ? ' ' : ', ';
+        field.value = `${current}${separator}${keyword}`;
+    }
+    field.focus();
+}
+
 // --- Lógica: Registrar Retiro con Optimizaciones ---
 
 // Atajos de teclado en formulario de retiro
@@ -531,30 +550,69 @@ async function loadPendingTable() {
 // --- Variables globales para historial (para filtros) ---
 let allHistoryLoans = [];
 let currentHistoryLoans = [];
+let historyPage = 1;
+const HISTORY_PAGE_SIZE = 10;
 
-// --- Tabla Historial (con firmas y observaciones) ---
+function getHistoryFilterCriteria() {
+    const search = document.getElementById('admin-search')?.value.trim().toLowerCase() || '';
+    const from = document.getElementById('date-from')?.value;
+    const to = document.getElementById('date-to')?.value;
+    const status = document.getElementById('status-filter')?.value;
+    return { search, from, to, status };
+}
+
+function applyHistoryFilters() {
+    const { search, from, to, status } = getHistoryFilterCriteria();
+    let filtered = allHistoryLoans.filter(loan => {
+        const loanDate = loan.checkout_time.split(' ')[0];
+        if (from && to && !(loanDate >= from && loanDate <= to)) return false;
+        if (from && !to && loanDate < from) return false;
+        if (to && !from && loanDate > to) return false;
+        if (status && loan.status !== status) return false;
+        if (search) {
+            const query = search.toLowerCase();
+            const matchesName = loan.name && loan.name.toLowerCase().includes(query);
+            const matchesCi = loan.ci && loan.ci.toLowerCase().includes(query);
+            if (!matchesName && !matchesCi) return false;
+        }
+        return true;
+    });
+    historyPage = 1;
+    renderHistoryTable(filtered, historyPage);
+    UI.showToast(`Mostrando ${filtered.length} registro(s)`, 'info');
+}
+
 async function loadHistoryTable() {
     try {
         const loans = await API.getAllLoans();
+        // Asegurar orden consistente: mostrar primero los retiros más recientes
+        loans.sort((a, b) => new Date(b.checkout_time) - new Date(a.checkout_time));
         allHistoryLoans = loans;
         currentHistoryLoans = loans;
-        renderHistoryTable(loans);
+        historyPage = 1; // resetear a primera página al cargar
+        renderHistoryTable(loans, historyPage);
     } catch (e) {
         UI.showToast(e.message, 'error');
     }
 }
 
-function renderHistoryTable(loans) {
+function renderHistoryTable(loans, page = 1) {
     currentHistoryLoans = loans;
+    historyPage = Math.max(1, Math.min(page, Math.ceil(loans.length / HISTORY_PAGE_SIZE) || 1));
     const tbody = document.querySelector('#table-history tbody');
     tbody.innerHTML = '';
 
     if (loans.length === 0) {
         tbody.innerHTML = '<tr><td colspan="11" class="text-center">No hay registros para mostrar.</td></tr>';
+        renderHistoryPagination(0);
         return;
     }
 
-    loans.forEach(loan => {
+    const totalPages = Math.ceil(loans.length / HISTORY_PAGE_SIZE);
+    const startIndex = (historyPage - 1) * HISTORY_PAGE_SIZE;
+    const pageLoans = loans.slice(startIndex, startIndex + HISTORY_PAGE_SIZE);
+
+    pageLoans.forEach(loan => {
         const tr = document.createElement('tr');
         let status = loan.status === 'returned'
             ? '<span class="status-badge ok">Devuelto</span>'
@@ -584,6 +642,34 @@ function renderHistoryTable(loans) {
         `;
         tbody.appendChild(tr);
     });
+    renderHistoryPagination(Math.ceil(loans.length / HISTORY_PAGE_SIZE));
+}
+
+function renderHistoryPagination(totalPages) {
+    const pagination = document.getElementById('history-pagination');
+    const prevBtn = document.getElementById('history-prev-page');
+    const nextBtn = document.getElementById('history-next-page');
+    const pageInfo = document.getElementById('history-page-info');
+
+    if (!pagination || !prevBtn || !nextBtn || !pageInfo) return;
+
+    if (totalPages <= 1) {
+        pagination.style.display = 'none';
+        return;
+    }
+
+    pagination.style.display = 'flex';
+    pageInfo.textContent = `Página ${historyPage} de ${totalPages}`;
+    prevBtn.disabled = historyPage <= 1;
+    nextBtn.disabled = historyPage >= totalPages;
+}
+
+function changeHistoryPage(offset) {
+    const totalPages = Math.ceil(currentHistoryLoans.length / HISTORY_PAGE_SIZE);
+    const nextPage = Math.max(1, Math.min(historyPage + offset, totalPages));
+    if (nextPage === historyPage) return;
+    historyPage = nextPage;
+    renderHistoryTable(currentHistoryLoans, historyPage);
 }
 
 async function updateLoanStatusFromAdmin(id, status) {
@@ -693,35 +779,28 @@ if (editLoanModalElement) {
 
 // --- Filtros de fecha ---
 document.getElementById('btn-filter-dates').addEventListener('click', () => {
-    const from = document.getElementById('date-from').value;
-    const to = document.getElementById('date-to').value;
-    const status = document.getElementById('status-filter').value;
-
-    if (!from && !to && !status) {
-        renderHistoryTable(allHistoryLoans);
-        UI.showToast('Mostrando todos los registros', 'info');
-        return;
-    }
-
-    const filtered = allHistoryLoans.filter(loan => {
-        const loanDate = loan.checkout_time.split(' ')[0]; // YYYY-MM-DD
-
-        if (from && to && !(loanDate >= from && loanDate <= to)) return false;
-        if (from && !to && loanDate < from) return false;
-        if (to && !from && loanDate > to) return false;
-        if (status && loan.status !== status) return false;
-        return true;
-    });
-
-    renderHistoryTable(filtered);
-    UI.showToast(`Mostrando ${filtered.length} registro(s)`, 'info');
+    applyHistoryFilters();
 });
 
 document.getElementById('btn-clear-filter').addEventListener('click', () => {
     document.getElementById('date-from').value = '';
     document.getElementById('date-to').value = '';
     document.getElementById('status-filter').value = '';
-    renderHistoryTable(allHistoryLoans);
+    document.getElementById('admin-search').value = '';
+    historyPage = 1;
+    renderHistoryTable(allHistoryLoans, historyPage);
+});
+
+document.getElementById('admin-search').addEventListener('input', () => {
+    applyHistoryFilters();
+});
+
+document.getElementById('history-prev-page').addEventListener('click', () => {
+    changeHistoryPage(-1);
+});
+
+document.getElementById('history-next-page').addEventListener('click', () => {
+    changeHistoryPage(1);
 });
 
 document.getElementById('btn-export-filtered-pdf').addEventListener('click', () => {

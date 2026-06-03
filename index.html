@@ -21,25 +21,39 @@
 
 <body>
     <header class="app-header" role="banner">
-        <div class="logo-container">
-            <!-- Asumiendo que el usuario colocará su logo aquí, por ahora usamos texto estilizado -->
-            <div class="logo-placeholder">
-                <img src="assets/img/logo.png" width="100" alt="Logo ISBO">
+        <div class="header-top">
+            <div class="brand-bar">
+                <div class="logo-placeholder">
+                    <img src="assets/img/logo.png" width="100" alt="Logo ISBO">
+                </div>
+                <div class="brand-text">
+                    <span class="eyebrow">Instituto Superior Brazo Oriental</span>
+                    <h1>Registro de Equipamiento Multimedia</h1>
+
+                </div>
             </div>
-            <h1>Registro de Equipamiento</h1>
+            <div class="clock-panel" aria-live="polite" aria-atomic="true">
+                <span class="clock-label"><i class="fas fa-clock" aria-hidden="true"></i> Hora Montevideo</span>
+                <strong id="header-clock">--:--:--</strong>
+                <small id="header-date">--</small>
+            </div>
+            <div class="header-admin">
+                <button class="admin-icon-btn" data-target="view-admin" aria-label="Ir a Panel de administrador"><i
+                        class="fas fa-lock" aria-hidden="true"></i></button>
+            </div>
         </div>
-        <nav class="nav-tabs" role="navigation" aria-label="Navegación principal">
-            <button class="tab-btn active" data-target="view-checkout" aria-label="Ir a Retirar equipamiento"><i
-                    class="fas fa-sign-out-alt" aria-hidden="true"></i>
-                Retirar</button>
-            <button class="tab-btn" data-target="view-return" aria-label="Ir a Devolver equipamiento"><i
-                    class="fas fa-sign-in-alt" aria-hidden="true"></i> Devolver</button>
-            <button class="tab-btn admin-btn" data-target="view-admin" aria-label="Ir a Panel de administrador"><i
-                    class="fas fa-lock" aria-hidden="true"></i> Admin</button>
-        </nav>
     </header>
 
     <main class="app-main">
+        <div class="nav-row">
+            <nav class="nav-tabs" role="navigation" aria-label="Navegación principal">
+                <button class="tab-btn active" data-target="view-checkout" aria-label="Ir a Retirar equipamiento"><i
+                        class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                    Retirar</button>
+                <button class="tab-btn" data-target="view-return" aria-label="Ir a Devolver equipamiento"><i
+                        class="fas fa-sign-in-alt" aria-hidden="true"></i> Devolver</button>
+            </nav>
+        </div>
         <!-- Notificaciones -->
         <div id="notification-area" class="notification-area"></div>
 
@@ -83,16 +97,22 @@
                         <div class="canvas-container">
                             <canvas id="checkout-signature-pad" role="img" aria-label="Área de firma digital"></canvas>
                         </div>
-                        <button type="button" class="btn btn-secondary btn-clear" data-canvas="checkout-signature-pad"
-                            aria-label="Limpiar firma digital">Limpiar Firma</button>
+                        <button type="button" class="btn btn-secondary btn-icon btn-clear"
+                            data-canvas="checkout-signature-pad" aria-label="Limpiar firma digital"><i
+                                class="fas fa-trash-alt" aria-hidden="true"></i><span class="sr-only">Limpiar
+                                Firma</span></button>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-check-circle"
-                            aria-hidden="true"></i>
-                        Confirmar Retiro</button>
-                    <button type="button" class="btn btn-secondary btn-block" id="btn-clear-checkout"
-                        aria-label="Borrar todos los campos del formulario">Limpiar
-                        Formulario</button>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary btn-small" id="btn-clear-checkout"
+                            aria-label="Limpiar formulario de retiro">
+                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                            Limpiar
+                        </button>
+                        <button type="submit" class="btn btn-primary btn-submit"><i class="fas fa-check-circle"
+                                aria-hidden="true"></i>
+                            Confirmar Retiro</button>
+                    </div>
                 </form>
             </div>
         </section>
@@ -107,7 +127,7 @@
                     <label for="return-ci"><i class="fas fa-search" aria-hidden="true"></i> Tu Cédula de
                         Identidad</label>
                     <div class="input-with-btn">
-                        <input type="text" id="return-ci" placeholder="Ingresa tu CI para buscar..." minlength="7"
+                        <input type="text" id="return-ci" autocomplete="off" placeholder="Ingresa tu CI para buscar..." minlength="7"
                             maxlength="8" pattern="[0-9\-]+" title="Solo números y sin puntos ni guiones"
                             aria-label="Cédula de identidad para búsqueda">
                         <button type="button" id="btn-search-loans" class="btn btn-primary"
@@ -143,19 +163,23 @@
                                     <canvas id="return-signature-pad" role="img"
                                         aria-label="Área de firma digital de devolución"></canvas>
                                 </div>
-                                <button type="button" class="btn btn-secondary btn-clear"
-                                    data-canvas="return-signature-pad" aria-label="Limpiar firma de devolución">Limpiar
-                                    Firma</button>
+                                <button type="button" class="btn btn-secondary btn-icon btn-clear"
+                                    data-canvas="return-signature-pad" aria-label="Limpiar firma de devolución"><i
+                                        class="fas fa-trash-alt" aria-hidden="true"></i><span class="sr-only">Limpiar
+                                        Firma</span></button>
                             </div>
 
-                            <button type="submit" class="btn btn-primary btn-block"
-                                aria-label="Confirmar devolución del equipamiento"><i class="fas fa-check-double"
-                                    aria-hidden="true"></i>
-                                Confirmar Devolución</button>
-
-                            <button type="button" class="btn btn-secondary btn-block" id="btn-clear-return"
-                                aria-label="Limpiar formulario de devolución">Limpiar
-                                Formulario</button>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-secondary btn-small" id="btn-clear-return"
+                                    aria-label="Limpiar formulario de devolución">
+                                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                    Limpiar
+                                </button>
+                                <button type="submit" class="btn btn-primary btn-submit"
+                                    aria-label="Confirmar devolución del equipamiento"><i class="fas fa-check-double"
+                                        aria-hidden="true"></i>
+                                    Confirmar Devolución</button>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -252,10 +276,21 @@
                             <label for="date-to"><i class="fas fa-calendar"></i> Hasta</label>
                             <input type="date" id="date-to">
                         </div>
+                        <div class="filter-group">
+                            <label for="status-filter"><i class="fas fa-list"></i> Estado</label>
+                            <select id="status-filter">
+                                <option value="">Todos</option>
+                                <option value="active">Pendientes</option>
+                                <option value="returned">Devueltos</option>
+                            </select>
+                        </div>
                         <button id="btn-filter-dates" class="btn btn-primary btn-sm"><i class="fas fa-filter"></i>
                             Filtrar</button>
                         <button id="btn-clear-filter" class="btn btn-secondary btn-sm"><i class="fas fa-times"></i>
                             Limpiar</button>
+                        <button id="btn-export-filtered-pdf" class="btn btn-secondary btn-sm"><i
+                                class="fas fa-file-pdf"></i>
+                            Exportar filtrado</button>
                     </div>
 
                     <div class="table-responsive">
@@ -315,6 +350,29 @@
                     <button class="signature-modal-close" id="close-sig-modal"><i class="fas fa-times"></i></button>
                     <h3 id="sig-modal-title">Firma</h3>
                     <img id="sig-modal-img" src="" alt="Firma ampliada">
+                </div>
+            </div>
+
+            <!-- Modal para editar detalle de préstamo -->
+            <div id="edit-loan-modal" class="edit-loan-modal hidden" aria-modal="true" role="dialog"
+                aria-labelledby="edit-loan-title">
+                <div class="edit-loan-modal-content">
+                    <button class="modal-close" id="close-edit-loan-modal" aria-label="Cerrar modal"><i
+                            class="fas fa-times"></i></button>
+                    <h3 id="edit-loan-title"><i class="fas fa-edit"></i> Editar Préstamo</h3>
+                    <form id="edit-loan-form">
+                        <input type="hidden" id="edit-loan-id">
+                        <div class="form-group">
+                            <label for="edit-loan-equipment">Descripción del equipamiento</label>
+                            <textarea id="edit-loan-equipment" rows="4" required></textarea>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="button" class="btn btn-secondary btn-icon" id="cancel-edit-loan"
+                                aria-label="Cancelar edición"><i class="fas fa-ban"></i></button>
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar
+                                cambios</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </section>

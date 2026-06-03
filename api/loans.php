@@ -74,6 +74,43 @@ elseif ($requestMethod === 'PUT') {
         }
     }
 
+    // Actualización de detalle de préstamo por administrador
+    if (isset($_SESSION['user_id']) && (isset($data->equipment_details) || isset($data->name) || isset($data->ci) || isset($data->group_name))) {
+        $fields = [];
+        $values = [];
+        if (isset($data->equipment_details)) {
+            $fields[] = 'equipment_details = ?';
+            $values[] = $data->equipment_details;
+        }
+        if (isset($data->name)) {
+            $fields[] = 'name = ?';
+            $values[] = $data->name;
+        }
+        if (isset($data->ci)) {
+            $fields[] = 'ci = ?';
+            $values[] = $data->ci;
+        }
+        if (isset($data->group_name)) {
+            $fields[] = 'group_name = ?';
+            $values[] = $data->group_name;
+        }
+
+        if (count($fields) > 0) {
+            $stmt = $pdo->prepare('UPDATE loans SET ' . implode(', ', $fields) . ' WHERE id = ?');
+            $values[] = $data->id;
+            try {
+                $stmt->execute($values);
+                if ($stmt->rowCount() > 0) {
+                    sendJsonResponse(['message' => 'Registro actualizado correctamente']);
+                } else {
+                    sendJsonResponse(['error' => 'Préstamo no encontrado o sin cambios'], 404);
+                }
+            } catch (PDOException $e) {
+                sendJsonResponse(['error' => 'Error al guardar: ' . $e->getMessage()], 500);
+            }
+        }
+    }
+
     // Endpoint público de devolución con firma
     if (!isset($data->return_signature)) {
         sendJsonResponse(['error' => 'Faltan campos obligatorios para la devolución'], 400);

@@ -28,6 +28,12 @@ const UI = {
         const btn = document.querySelector(`.tab-btn[data-target="${viewId}"]`);
         if (btn) btn.classList.add('active');
 
+        if (viewId === 'view-return') {
+            resetReturnInactivityTimer();
+        } else {
+            clearReturnInactivityTimer();
+        }
+
         // Redimensionar canvas si la vista tiene firmas (arregla error de canvas oculto)
         setTimeout(() => {
             if (window.checkoutSignature) window.checkoutSignature.resizeCanvas();
@@ -39,6 +45,40 @@ const UI = {
         if (!dateStr) return '-';
         const d = new Date(dateStr);
         return d.toLocaleString('es-UY');
+    },
+
+    escapeHTML(value) {
+        if (value === null || value === undefined) return '-';
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    },
+
+    updateMontevideoClock() {
+        const clockEl = document.getElementById('header-clock');
+        const dateEl = document.getElementById('header-date');
+        if (!clockEl || !dateEl) return;
+
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('es-UY', {
+            timeZone: 'America/Montevideo',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+        });
+        const dateString = now.toLocaleDateString('es-UY', {
+            timeZone: 'America/Montevideo',
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+        });
+
+        clockEl.textContent = timeString;
+        dateEl.textContent = dateString;
     },
 
     // Animación de conteo para métricas
@@ -73,6 +113,29 @@ const UI = {
 };
 
 // --- Navegación ---
+let returnViewInactivityTimeout = null;
+const RETURN_VIEW_INACTIVITY_MS = 5 * 60 * 1000;
+
+function clearReturnInactivityTimer() {
+    if (returnViewInactivityTimeout) {
+        clearTimeout(returnViewInactivityTimeout);
+        returnViewInactivityTimeout = null;
+    }
+}
+
+function resetReturnInactivityTimer() {
+    clearReturnInactivityTimer();
+    if (!document.getElementById('view-return') || document.getElementById('view-return').classList.contains('hidden')) {
+        return;
+    }
+    returnViewInactivityTimeout = setTimeout(() => {
+        if (!document.getElementById('view-return').classList.contains('hidden')) {
+            UI.switchView('view-checkout');
+            UI.showToast('No se usó la devolución en 5 minutos. Volviendo a Retirar.', 'info');
+        }
+    }, RETURN_VIEW_INACTIVITY_MS);
+}
+
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
         UI.switchView(e.currentTarget.getAttribute('data-target'));
@@ -176,11 +239,20 @@ checkoutForm.addEventListener('submit', async (e) => {
     }
 });
 
+document.getElementById('btn-clear-checkout').addEventListener('click', (e) => {
+    e.preventDefault();
+    checkoutForm.reset();
+    window.checkoutSignature.clear();
+    document.getElementById('ci').focus();
+});
+
 
 // --- Lógica: Devolución ---
 
 // al presionar enter en el input de cedula
 document.getElementById('return-ci').addEventListener('keydown', async (e) => {
+    resetReturnInactivityTimer();
+
     if (e.key === 'Enter') {
         document.getElementById('btn-search-loans').click();
     }
@@ -191,15 +263,25 @@ document.getElementById('return-ci').addEventListener('keydown', async (e) => {
 });
 
 
-document.getElementById('btn-clear-search-ci').addEventListener('click', async (e) => {
-    e.preventDefault();
-    document.getElementById('return-ci').value = '';
-    document.getElementById('return-ci').focus();
-    document.getElementById('active-loans-container').classList.add('hidden');
+function clearReturnCiInput() {
+    const ciInput = document.getElementById('return-ci');
+    if (!ciInput) return;
+    ciInput.value = '';
+    ciInput.setAttribute('value', '');
+}
 
+document.getElementById('btn-clear-search-ci').addEventListener('click', (e) => {
+    e.preventDefault();
+    resetReturnInactivityTimer();
+    clearReturnCiInput();
+    document.getElementById('return-loan-id').value = '';
+    document.getElementById('return-details').classList.add('hidden');
+    document.getElementById('active-loans-container').classList.add('hidden');
+    document.getElementById('return-ci').focus();
 });
 
 document.getElementById('btn-search-loans').addEventListener('click', async () => {
+    resetReturnInactivityTimer();
     const ci = document.getElementById('return-ci').value;
     if (!ci) {
         UI.showToast('Ingresa tu cédula', 'error');
@@ -230,18 +312,20 @@ document.getElementById('btn-search-loans').addEventListener('click', async () =
         if (loans.length === 0) {
             list.innerHTML = '<p class="text-muted"><i class="fas fa-info-circle"></i> No tienes préstamos activos pendientes de devolver.</p>';
             document.getElementById('return-details').classList.add('hidden');
+            document.getElementById('return-loan-id').value = '';
         } else {
             loans.forEach(loan => {
                 const item = document.createElement('div');
                 item.className = 'loan-item';
                 item.innerHTML = `
                     <div class="loan-details">
-                        <h4>${loan.equipment_details}</h4>
+                        <h4>${UI.escapeHTML(loan.equipment_details)}</h4>
                         <p>Retirado el: ${UI.formatDate(loan.checkout_time)}</p>
                     </div>
                     <div><i class="fas fa-chevron-right" style="color: #ccc;"></i></div>
                 `;
                 item.addEventListener('click', () => {
+                    resetReturnInactivityTimer();
                     document.querySelectorAll('.loan-item').forEach(i => i.classList.remove('selected'));
                     item.classList.add('selected');
                     document.getElementById('return-loan-id').value = loan.id;
@@ -260,6 +344,7 @@ document.getElementById('btn-search-loans').addEventListener('click', async () =
 
 document.getElementById('return-form').addEventListener('submit', async (e) => {
     e.preventDefault();
+    resetReturnInactivityTimer();
 
     if (window.returnSignature.isEmpty) {
         UI.showToast('Por favor, firma la devolución', 'error');
@@ -267,6 +352,11 @@ document.getElementById('return-form').addEventListener('submit', async (e) => {
     }
 
     const id = document.getElementById('return-loan-id').value;
+    if (!id) {
+        UI.showToast('Selecciona un préstamo para devolver', 'error');
+        return;
+    }
+
     const obs = document.getElementById('return-obs').value;
     const sign = window.returnSignature.getBase64();
     const btn = e.target.querySelector('button[type="submit"]');
@@ -277,9 +367,10 @@ document.getElementById('return-form').addEventListener('submit', async (e) => {
         await API.returnLoan(id, sign, obs);
         UI.showToast('¡Devolución confirmada!', 'success');
 
-        // Limpiar formulario y firmas
+        // Limpiar formulario y datos de búsqueda
         e.target.reset();
         window.returnSignature.clear();
+        clearReturnCiInput();
         document.getElementById('return-details').classList.add('hidden');
 
         // Limpiar lista de préstamos y volver arriba
@@ -289,7 +380,10 @@ document.getElementById('return-form').addEventListener('submit', async (e) => {
         if (loansContainer) loansContainer.classList.add('hidden');
         document.getElementById('return-details').classList.add('hidden');
         window.scrollTo(0, 0);
-        setTimeout(() => document.getElementById('return-ci').focus(), 100);
+        setTimeout(() => {
+            clearReturnCiInput();
+            document.getElementById('return-ci').focus();
+        }, 100);
     } catch (error) {
         UI.showToast(error.message, 'error');
     } finally {
@@ -302,9 +396,9 @@ document.getElementById('return-form').addEventListener('submit', async (e) => {
 document.getElementById('btn-clear-return').addEventListener('click', (e) => {
     e.preventDefault();
     document.getElementById('return-form').reset();
+    document.getElementById('return-loan-id').value = '';
     window.returnSignature.clear();
 
-    // Opcional: volver a mostrar la búsqueda o el mensaje inicial
     document.getElementById('return-details').classList.add('hidden');
     const loansList = document.getElementById('loans-list');
     if (loansList) loansList.innerHTML = '';
@@ -417,12 +511,15 @@ async function loadPendingTable() {
 
             tr.innerHTML = `
                 <td>${UI.formatDate(loan.checkout_time)}</td>
-                <td>${loan.ci}</td>
-                <td>${loan.name}</td>
-                <td>${loan.equipment_details}</td>
+                <td>${UI.escapeHTML(loan.ci)}</td>
+                <td>${UI.escapeHTML(loan.name)}</td>
+                <td>${UI.escapeHTML(loan.equipment_details)}</td>
                 <td>${UI.renderSignatureThumb(loan.checkout_signature, 'Firma de Retiro - ' + loan.name)}</td>
                 <td>${badge}</td>
-                <td><button type="button" class="btn btn-primary btn-sm" data-action="mark-returned" data-id="${loan.id}">Marcar devuelto</button></td>
+                <td class="admin-actions-cell">
+                    <button type="button" class="btn btn-icon btn-secondary admin-action-btn" data-action="edit-details" data-id="${loan.id}" data-equipment="${UI.escapeHTML(loan.equipment_details)}" aria-label="Editar equipamiento"><i class="fas fa-edit"></i></button>
+                    <button type="button" class="btn btn-icon btn-primary admin-action-btn" data-action="mark-returned" data-id="${loan.id}" aria-label="Marcar como devuelto"><i class="fas fa-check"></i></button>
+                </td>
             `;
             tbody.appendChild(tr);
         });
@@ -470,15 +567,20 @@ function renderHistoryTable(loans) {
         tr.innerHTML = `
             <td>#${loan.id}</td>
             <td>${UI.formatDate(loan.checkout_time)}</td>
-            <td>${loan.ci}</td>
-            <td>${loan.name}</td>
-            <td>${loan.equipment_details}</td>
+            <td>${UI.escapeHTML(loan.ci)}</td>
+            <td>${UI.escapeHTML(loan.name)}</td>
+            <td>${UI.escapeHTML(loan.equipment_details)}</td>
             <td>${UI.renderSignatureThumb(loan.checkout_signature, 'Firma de Retiro - ' + loan.name)}</td>
             <td>${loan.status === 'returned' ? UI.formatDate(loan.return_time) : '-'}</td>
             <td>${loan.status === 'returned' ? UI.renderSignatureThumb(loan.return_signature, 'Firma de Devolución - ' + loan.name) : '<span class="no-signature">-</span>'}</td>
-            <td>${loan.return_observation || '-'}</td>
+            <td>${UI.escapeHTML(loan.return_observation || '-')}</td>
             <td>${status}</td>
-            <td>${actionButton}</td>
+            <td class="admin-actions-cell">
+                <button type="button" class="btn btn-icon btn-secondary admin-action-btn" data-action="edit-details" data-id="${loan.id}" data-equipment="${UI.escapeHTML(loan.equipment_details)}" aria-label="Editar equipamiento"><i class="fas fa-edit"></i></button>
+                ${loan.status === 'returned'
+                ? `<button type="button" class="btn btn-icon btn-primary admin-action-btn" data-action="mark-active" data-id="${loan.id}" aria-label="Marcar en préstamo"><i class="fas fa-undo"></i></button>`
+                : `<button type="button" class="btn btn-icon btn-primary admin-action-btn" data-action="mark-returned" data-id="${loan.id}" aria-label="Marcar como devuelto"><i class="fas fa-check"></i></button>`}
+            </td>
         `;
         tbody.appendChild(tr);
     });
@@ -501,6 +603,40 @@ async function updateLoanStatusFromAdmin(id, status) {
     }
 }
 
+function openEditLoanModal(id, currentEquipment) {
+    document.getElementById('edit-loan-id').value = id;
+    document.getElementById('edit-loan-equipment').value = currentEquipment || '';
+    document.getElementById('edit-loan-modal').classList.remove('hidden');
+    document.getElementById('edit-loan-equipment').focus();
+}
+
+function closeEditLoanModal() {
+    document.getElementById('edit-loan-modal').classList.add('hidden');
+}
+
+async function submitEditLoanForm(event) {
+    event.preventDefault();
+    const id = document.getElementById('edit-loan-id').value;
+    const equipment = document.getElementById('edit-loan-equipment').value.trim();
+
+    if (!equipment) {
+        UI.showToast('La descripción no puede quedar vacía', 'error');
+        return;
+    }
+
+    try {
+        await API.updateLoanDetails(id, { equipment_details: equipment });
+        UI.showToast('Equipamiento actualizado correctamente', 'success');
+        closeEditLoanModal();
+        loadPendingTable();
+        if (!document.getElementById('admin-history').classList.contains('hidden')) {
+            loadHistoryTable();
+        }
+    } catch (e) {
+        UI.showToast(e.message, 'error');
+    }
+}
+
 document.querySelector('#table-pending tbody').addEventListener('click', async (e) => {
     const btn = e.target.closest('button[data-action]');
     if (!btn) return;
@@ -508,6 +644,9 @@ document.querySelector('#table-pending tbody').addEventListener('click', async (
     const id = btn.dataset.id;
     if (action === 'mark-returned') {
         await updateLoanStatusFromAdmin(id, 'returned');
+    }
+    if (action === 'edit-details') {
+        openEditLoanModal(id, btn.dataset.equipment);
     }
 });
 
@@ -522,7 +661,35 @@ document.querySelector('#table-history tbody').addEventListener('click', async (
     if (action === 'mark-active') {
         await updateLoanStatusFromAdmin(id, 'active');
     }
+    if (action === 'edit-details') {
+        openEditLoanModal(id, btn.dataset.equipment);
+    }
 });
+
+// Edit Loan Modal Behavior
+const editLoanForm = document.getElementById('edit-loan-form');
+if (editLoanForm) {
+    editLoanForm.addEventListener('submit', submitEditLoanForm);
+}
+
+const closeEditLoanModalBtn = document.getElementById('close-edit-loan-modal');
+if (closeEditLoanModalBtn) {
+    closeEditLoanModalBtn.addEventListener('click', closeEditLoanModal);
+}
+
+const cancelEditLoanBtn = document.getElementById('cancel-edit-loan');
+if (cancelEditLoanBtn) {
+    cancelEditLoanBtn.addEventListener('click', closeEditLoanModal);
+}
+
+const editLoanModalElement = document.getElementById('edit-loan-modal');
+if (editLoanModalElement) {
+    editLoanModalElement.addEventListener('click', (e) => {
+        if (e.target === editLoanModalElement) {
+            closeEditLoanModal();
+        }
+    });
+}
 
 // --- Filtros de fecha ---
 document.getElementById('btn-filter-dates').addEventListener('click', () => {
@@ -663,13 +830,13 @@ async function generatePDFReport(filterType = 'all', loanSet = null) {
                 <tr>
                     <td style="padding:6px;border-bottom:1px solid #eee;">#${loan.id}</td>
                     <td style="padding:6px;border-bottom:1px solid #eee;">${UI.formatDate(loan.checkout_time)}</td>
-                    <td style="padding:6px;border-bottom:1px solid #eee;">${loan.ci}</td>
-                    <td style="padding:6px;border-bottom:1px solid #eee;">${loan.name}</td>
-                    <td style="padding:6px;border-bottom:1px solid #eee;">${loan.equipment_details}</td>
+                            <td style="padding:6px;border-bottom:1px solid #eee;">${UI.escapeHTML(loan.ci)}</td>
+                    <td style="padding:6px;border-bottom:1px solid #eee;">${UI.escapeHTML(loan.name)}</td>
+                    <td style="padding:6px;border-bottom:1px solid #eee;">${UI.escapeHTML(loan.equipment_details)}</td>
                     <td style="padding:6px;border-bottom:1px solid #eee;">${checkoutSig}</td>
                     <td style="padding:6px;border-bottom:1px solid #eee;">${loan.status === 'returned' ? UI.formatDate(loan.return_time) : '-'}</td>
                     <td style="padding:6px;border-bottom:1px solid #eee;">${returnSig}</td>
-                    <td style="padding:6px;border-bottom:1px solid #eee;">${loan.return_observation || '-'}</td>
+                    <td style="padding:6px;border-bottom:1px solid #eee;">${UI.escapeHTML(loan.return_observation || '-')}</td>
                     <td style="padding:6px;border-bottom:1px solid #eee;color:${statusColor};font-weight:600;">${statusText}</td>
                 </tr>
             `;
@@ -773,6 +940,22 @@ document.getElementById('btn-pdf-pending').addEventListener('click', () => {
 });
 
 // Comprobar sesión al cargar la vista de admin
-document.querySelector('.tab-btn.admin-btn').addEventListener('click', () => {
-    loadAdminDashboard();
-});
+const adminTabBtn = document.querySelector('.tab-btn.admin-btn');
+if (adminTabBtn) {
+    adminTabBtn.addEventListener('click', () => {
+        loadAdminDashboard();
+    });
+}
+
+// Inicializar reloj de Montevideo
+UI.updateMontevideoClock();
+setInterval(() => UI.updateMontevideoClock(), 1000);
+
+// También enlazar el botón admin compacto del header
+const adminIconBtn = document.querySelector('.admin-icon-btn');
+if (adminIconBtn) {
+    adminIconBtn.addEventListener('click', () => {
+        UI.switchView('view-admin');
+        try { loadAdminDashboard(); } catch (e) { console.warn('loadAdminDashboard no disponible', e); }
+    });
+}

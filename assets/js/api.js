@@ -57,6 +57,10 @@ const API = {
         });
     },
 
+    async updateLoanDetails(id, updates) {
+        return this.request('loans.php', 'PUT', Object.assign({ id }, updates));
+    },
+
     // --- Administrador ---
     async login(username, password) {
         return this.request('auth.php?action=login', 'POST', { username, password });

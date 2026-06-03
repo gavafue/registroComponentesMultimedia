@@ -488,6 +488,38 @@ textarea {
     min-width: 0;
 }
 
+/* Compact status icons for admin tables */
+.status-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    font-size: 1.08rem;
+}
+.status-icon.ok {
+    color: var(--success);
+    background: rgba(11,113,20,0.06);
+    border: 1px solid rgba(11,113,20,0.08);
+}
+.status-icon.pending {
+    color: var(--isbo-blue);
+    background: rgba(0,69,138,0.04);
+    border: 1px solid rgba(0,69,138,0.06);
+}
+.status-icon.alert {
+    color: var(--warning);
+    background: rgba(185,94,0,0.06);
+    border: 1px solid rgba(185,94,0,0.08);
+}
+
+/* Make icon sizes tidy inside table cells */
+.data-table td .status-icon i,
+.data-table td .status-icon {
+    font-size: 1.08rem;
+}
+
 .filter-group {
     display: flex;
     flex-direction: column;

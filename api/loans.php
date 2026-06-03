@@ -167,7 +167,7 @@ elseif ($requestMethod === 'GET') {
         $stmt->execute([$today]);
         $returnedToday = $stmt->fetch()['count'];
         
-        // Retrasados (activos > 12 horas)
+        // Atrasados (activos > 12 horas)
         $stmt = $pdo->query("SELECT COUNT(*) as count FROM loans WHERE status = 'active' AND checkout_time < NOW() - INTERVAL 12 HOUR");
         $totalDelayed = $stmt->fetch()['count'];
         

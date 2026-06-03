@@ -508,9 +508,10 @@ async function loadPendingTable() {
             const now = new Date();
             const diffHours = (now - checkoutDate) / (1000 * 60 * 60);
 
-            let badge = `<span class="status-badge ok">En Préstamo</span>`;
+            // Use compact icons for status: en préstamo, atrasado
+            let badge = `<span class="status-icon pending" title="En Préstamo"><i class="fas fa-clock"></i></span>`;
             if (diffHours > 12) {
-                badge = `<span class="status-badge alert"><i class="fas fa-exclamation-triangle"></i> Retrasado</span>`;
+                badge = `<span class="status-icon alert" title="Atrasado"><i class="fas fa-exclamation-triangle"></i></span>`;
             }
 
             tr.innerHTML = `
@@ -599,9 +600,20 @@ function renderHistoryTable(loans, page = 1) {
 
     pageLoans.forEach(loan => {
         const tr = document.createElement('tr');
-        let status = loan.status === 'returned'
-            ? '<span class="status-badge ok">Devuelto</span>'
-            : '<span class="status-badge alert">Pendiente</span>';
+        // Determine status icon: returned, delayed (atrasado) or pending
+        let status = '';
+        if (loan.status === 'returned') {
+            status = '<span class="status-icon ok" title="Devuelto"><i class="fas fa-check-circle"></i></span>';
+        } else {
+            const checkoutDate = new Date(loan.checkout_time);
+            const now = new Date();
+            const diffHours = (now - checkoutDate) / (1000 * 60 * 60);
+            if (diffHours > 12) {
+                status = '<span class="status-icon alert" title="Atrasado"><i class="fas fa-exclamation-triangle"></i></span>';
+            } else {
+                status = '<span class="status-icon pending" title="Pendiente"><i class="fas fa-clock"></i></span>';
+            }
+        }
 
         const actionButton = loan.status === 'returned'
             ? `<button type="button" class="btn btn-secondary btn-sm" data-action="mark-active" data-id="${loan.id}">Marcar en préstamo</button>`

@@ -118,9 +118,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Botones de limpiar
     document.querySelectorAll('.btn-clear').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            const canvasId = e.target.getAttribute('data-canvas');
-            if (canvasId === 'checkout-signature-pad') window.checkoutSignature.clear();
-            if (canvasId === 'return-signature-pad') window.returnSignature.clear();
+            const canvasId = e.currentTarget.getAttribute('data-canvas');
+            if (canvasId === 'checkout-signature-pad' && window.checkoutSignature) window.checkoutSignature.clear();
+            if (canvasId === 'return-signature-pad' && window.returnSignature) window.returnSignature.clear();
         });
     });
 });

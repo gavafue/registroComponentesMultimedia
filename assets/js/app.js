@@ -44,7 +44,12 @@ const UI = {
     formatDate(dateStr) {
         if (!dateStr) return '-';
         const d = new Date(dateStr);
-        return d.toLocaleString('es-UY');
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const year = String(d.getFullYear()).slice(-2);
+        const hours = String(d.getHours()).padStart(2, '0');
+        const minutes = String(d.getMinutes()).padStart(2, '0');
+        return `${day}/${month}/${year} ${hours}:${minutes}`;
     },
 
     escapeHTML(value) {
@@ -515,14 +520,14 @@ async function loadPendingTable() {
             }
 
             tr.innerHTML = `
-                <td>${UI.formatDate(loan.checkout_time)}</td>
-                <td>${UI.escapeHTML(loan.ci)}</td>
-                <td>${UI.escapeHTML(loan.name)}</td>
-                <td>${UI.escapeHTML(loan.group_name || '-')}</td>
-                <td>${UI.escapeHTML(loan.equipment_details)}</td>
-                <td>${UI.renderSignatureThumb(loan.checkout_signature, 'Firma de Retiro - ' + loan.name)}</td>
-                <td>${badge}</td>
-                <td class="admin-actions-cell">
+                <td data-label="Fecha Retiro">${UI.formatDate(loan.checkout_time)}</td>
+                <td data-label="Cédula">${UI.escapeHTML(loan.ci)}</td>
+                <td data-label="Nombre">${UI.escapeHTML(loan.name)}</td>
+                <td data-label="Grupo">${UI.escapeHTML(loan.group_name || '-')}</td>
+                <td data-label="Equipamiento" class="wrap-cell">${UI.escapeHTML(loan.equipment_details)}</td>
+                <td data-label="Firma Retiro">${UI.renderSignatureThumb(loan.checkout_signature, 'Firma de Retiro - ' + loan.name)}</td>
+                <td data-label="Alerta">${badge}</td>
+                <td data-label="Acción" class="admin-actions-cell">
                     <button type="button" class="btn btn-icon btn-secondary admin-action-btn" data-action="edit-details" data-id="${loan.id}" data-equipment="${UI.escapeHTML(loan.equipment_details)}" aria-label="Editar equipamiento"><i class="fas fa-edit"></i></button>
                     <button type="button" class="btn btn-icon btn-primary admin-action-btn" data-action="mark-returned" data-id="${loan.id}" aria-label="Marcar como devuelto"><i class="fas fa-check"></i></button>
                 </td>
@@ -621,18 +626,18 @@ function renderHistoryTable(loans, page = 1) {
             : `<button type="button" class="btn btn-primary btn-sm" data-action="mark-returned" data-id="${loan.id}">Marcar devuelto</button>`;
 
         tr.innerHTML = `
-            <td>#${loan.id}</td>
-            <td>${UI.formatDate(loan.checkout_time)}</td>
-            <td>${UI.escapeHTML(loan.ci)}</td>
-            <td>${UI.escapeHTML(loan.name)}</td>
-            <td>${UI.escapeHTML(loan.group_name || '-')}</td>
-            <td>${UI.escapeHTML(loan.equipment_details)}</td>
-            <td>${UI.renderSignatureThumb(loan.checkout_signature, 'Firma de Retiro - ' + loan.name)}</td>
-            <td>${loan.status === 'returned' ? UI.formatDate(loan.return_time) : '-'}</td>
-            <td>${loan.status === 'returned' ? UI.renderSignatureThumb(loan.return_signature, 'Firma de Devolución - ' + loan.name) : '<span class="no-signature">-</span>'}</td>
-            <td>${UI.escapeHTML(loan.return_observation || '-')}</td>
-            <td>${status}</td>
-            <td class="admin-actions-cell">
+            <td data-label="ID">#${loan.id}</td>
+            <td data-label="Retiro">${UI.formatDate(loan.checkout_time)}</td>
+            <td data-label="Cédula">${UI.escapeHTML(loan.ci)}</td>
+            <td data-label="Nombre">${UI.escapeHTML(loan.name)}</td>
+            <td data-label="Grupo">${UI.escapeHTML(loan.group_name || '-')}</td>
+            <td data-label="Equipamiento" class="wrap-cell">${UI.escapeHTML(loan.equipment_details)}</td>
+            <td data-label="Firma Retiro">${UI.renderSignatureThumb(loan.checkout_signature, 'Firma de Retiro - ' + loan.name)}</td>
+            <td data-label="Devolución">${loan.status === 'returned' ? UI.formatDate(loan.return_time) : '-'}</td>
+            <td data-label="Firma Devolución">${loan.status === 'returned' ? UI.renderSignatureThumb(loan.return_signature, 'Firma de Devolución - ' + loan.name) : '<span class="no-signature">-</span>'}</td>
+            <td data-label="Observaciones" class="wrap-cell">${UI.escapeHTML(loan.return_observation || '-')}</td>
+            <td data-label="Estado">${status}</td>
+            <td data-label="Acción" class="admin-actions-cell">
                 <button type="button" class="btn btn-icon btn-secondary admin-action-btn" data-action="edit-details" data-id="${loan.id}" data-equipment="${UI.escapeHTML(loan.equipment_details)}" aria-label="Editar equipamiento"><i class="fas fa-edit"></i></button>
                 ${loan.status === 'returned'
                 ? `<button type="button" class="btn btn-icon btn-primary admin-action-btn" data-action="mark-active" data-id="${loan.id}" aria-label="Marcar en préstamo"><i class="fas fa-undo"></i></button>`

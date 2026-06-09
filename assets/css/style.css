@@ -290,7 +290,7 @@ body {
 
 /* Widen for admin view */
 .app-main:has(#view-admin:not(.hidden)) {
-    max-width: 1200px;
+    max-width: 98vw;
 }
 
 .hidden {
@@ -439,15 +439,16 @@ textarea {
 
 .date-filter-bar {
     display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 0.75rem 0.75rem;
-    background: rgba(255, 255, 255, 0.85);
-    border-radius: 12px;
-    margin-bottom: 2rem;
-    border: 1px solid rgba(0, 69, 138, 0.12);
-    flex-wrap: nowrap;
-    overflow-x: auto;
+    align-items: flex-end;
+    gap: 12px;
+    padding: 1rem 1.2rem;
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 14px;
+    margin-bottom: 1.5rem;
+    border: 2px solid rgba(0, 69, 138, 0.12);
+    flex-wrap: wrap;
+    width: 100%;
+    box-shadow: 0 2px 12px rgba(0, 69, 138, 0.06);
 }
 
 /* History pagination compact styling */
@@ -524,10 +525,9 @@ textarea {
 .filter-group {
     display: flex;
     flex-direction: column;
-    gap: 3px;
-    flex: 1 1 120px;
-    min-width: 110px;
-    max-width: 140px;
+    gap: 4px;
+    flex: 1 1 0;
+    min-width: 120px;
 }
 
 .filter-group label {
@@ -924,169 +924,171 @@ canvas {
 
 .table-responsive {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 69, 138, 0.1);
 }
 
 .data-table {
     width: 100%;
     border-collapse: collapse;
     background: #fff;
-    border-radius: 8px;
+    border-radius: 10px;
     overflow: hidden;
-}
-
-.data-table {
-    width: 100%;
-    border-collapse: collapse;
     table-layout: auto;
 }
 
 .data-table th,
 .data-table td {
-    padding: 10px 8px;
+    padding: 8px 10px;
     text-align: left;
-    border-bottom: 1px solid #ddd;
-    font-size: 0.9rem;
+    border-bottom: 1px solid #e8edf2;
+    font-size: 0.82rem;
     line-height: 1.4;
-    word-break: break-word;
-    overflow-wrap: anywhere;
     white-space: normal;
-    min-width: 0;
+    word-break: break-word;
+}
+
+/* Force nowrap on specific columns in desktop view to prevent wrapping where unwanted */
+@media (min-width: 1101px) {
+    /* History table specific column sizing */
+    #table-history th:nth-child(1), #table-history td:nth-child(1) { width: 4%; white-space: nowrap; }
+    #table-history th:nth-child(2), #table-history td:nth-child(2) { width: 10%; white-space: nowrap; }
+    #table-history th:nth-child(3), #table-history td:nth-child(3) { width: 8%; white-space: nowrap; }
+    #table-history th:nth-child(4), #table-history td:nth-child(4) { width: 14%; max-width: 130px; }
+    #table-history th:nth-child(5), #table-history td:nth-child(5) { width: 6%; max-width: 80px; }
+    #table-history th:nth-child(6), #table-history td:nth-child(6) { width: 18%; max-width: 200px; }
+    #table-history th:nth-child(7), #table-history td:nth-child(7) { width: 8%; }
+    #table-history th:nth-child(8), #table-history td:nth-child(8) { width: 10%; white-space: nowrap; }
+    #table-history th:nth-child(9), #table-history td:nth-child(9) { width: 8%; }
+    #table-history th:nth-child(10), #table-history td:nth-child(10) { width: 12%; max-width: 150px; }
+    #table-history th:nth-child(11), #table-history td:nth-child(11) { width: 6%; white-space: nowrap; }
+    #table-history th:nth-child(12), #table-history td:nth-child(12) { width: 6%; white-space: nowrap; }
+    
+    /* Pending table specific column sizing */
+    #table-pending th:nth-child(1), #table-pending td:nth-child(1) { width: 12%; white-space: nowrap; }
+    #table-pending th:nth-child(2), #table-pending td:nth-child(2) { width: 10%; white-space: nowrap; }
+    #table-pending th:nth-child(3), #table-pending td:nth-child(3) { width: 18%; max-width: 130px; }
+    #table-pending th:nth-child(4), #table-pending td:nth-child(4) { width: 8%; max-width: 80px; }
+    #table-pending th:nth-child(5), #table-pending td:nth-child(5) { width: 28%; max-width: 250px; }
+    #table-pending th:nth-child(6), #table-pending td:nth-child(6) { width: 10%; }
+    #table-pending th:nth-child(7), #table-pending td:nth-child(7) { width: 6%; white-space: nowrap; }
+    #table-pending th:nth-child(8), #table-pending td:nth-child(8) { width: 8%; white-space: nowrap; }
 }
 
 .data-table th {
     background: var(--isbo-blue-dark);
     color: white;
     font-weight: 700;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    position: sticky;
+    top: 0;
+    z-index: 2;
 }
 
-/* Tabla Pendientes - Distribución equilibrada: Fecha(8%) Cédula(7%) Nombre(10%) Grupo(5.5%) Equipamiento(40%) Firma(8%) Alerta(5%) Acción(8.5%) */
+.data-table tbody tr:nth-child(even) {
+    background: rgba(0, 69, 138, 0.02);
+}
+
+.data-table tbody tr:hover {
+    background: rgba(0, 69, 138, 0.06);
+}
+
+/* Tabla Pendientes & Historial Desktop overrides */
 #table-pending {
-    min-width: 800px;
+    min-width: 100%;
 }
 
-#table-pending th:nth-child(1),
-#table-pending td:nth-child(1) {
-    width: 8%;
-    min-width: 80px;
-}
-
-#table-pending th:nth-child(2),
-#table-pending td:nth-child(2) {
-    width: 7%;
-    min-width: 70px;
-}
-
-#table-pending th:nth-child(3),
-#table-pending td:nth-child(3) {
-    width: 10%;
-    min-width: 100px;
-}
-
-#table-pending th:nth-child(4),
-#table-pending td:nth-child(4) {
-    width: 5.5%;
-    min-width: 60px;
-}
-
-#table-pending th:nth-child(5),
-#table-pending td:nth-child(5) {
-    width: 40%;
-    min-width: 150px;
-}
-
-#table-pending th:nth-child(6),
-#table-pending td:nth-child(6) {
-    width: 8%;
-    min-width: 70px;
-}
-
-#table-pending th:nth-child(7),
-#table-pending td:nth-child(7) {
-    width: 5%;
-    min-width: 50px;
-}
-
-#table-pending th:nth-child(8),
-#table-pending td:nth-child(8) {
-    width: 8.5%;
-    min-width: 80px;
-}
-
-/* Tabla Historial - Distribución: ID(4%) Retiro(8%) Cédula(6.5%) Nombre(8.5%) Grupo(5%) Equipamiento(30%) Firma Retiro(7%) Devolución(8%) Firma Dev(7%) Observ(8%) Estado(4%) Acción(7%) */
 #table-history {
-    min-width: 900px;
+    min-width: 100%;
 }
 
-#table-history th:nth-child(1),
-#table-history td:nth-child(1) {
-    width: 4%;
-    min-width: 45px;
-}
+@media (max-width: 1100px) {
+    .table-responsive {
+        border: none;
+        overflow-x: visible;
+    }
 
-#table-history th:nth-child(2),
-#table-history td:nth-child(2) {
-    width: 8%;
-    min-width: 80px;
-}
+    .data-table {
+        background: transparent;
+        box-shadow: none;
+        display: block;
+        border: none;
+        border-radius: 0;
+    }
 
-#table-history th:nth-child(3),
-#table-history td:nth-child(3) {
-    width: 6.5%;
-    min-width: 65px;
-}
+    .data-table thead {
+        display: none;
+    }
 
-#table-history th:nth-child(4),
-#table-history td:nth-child(4) {
-    width: 8.5%;
-    min-width: 85px;
-}
+    .data-table tbody {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        width: 100%;
+    }
 
-#table-history th:nth-child(5),
-#table-history td:nth-child(5) {
-    width: 5%;
-    min-width: 55px;
-}
+    .data-table tr {
+        display: block;
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 4px 16px rgba(0, 69, 138, 0.05);
+        border: 2px solid var(--glass-border);
+        transition: all 0.2s ease;
+    }
 
-#table-history th:nth-child(6),
-#table-history td:nth-child(6) {
-    width: 30%;
-    min-width: 120px;
-}
+    .data-table tr:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 69, 138, 0.1);
+        background: #ffffff !important;
+    }
+    
+    .data-table tbody tr:nth-child(even) {
+        background: #ffffff;
+    }
 
-#table-history th:nth-child(7),
-#table-history td:nth-child(7) {
-    width: 7%;
-    min-width: 65px;
-}
+    .data-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px dashed #e8edf2;
+        font-size: 0.92rem;
+        white-space: normal;
+        text-align: right;
+        min-width: 0;
+        max-width: none !important;
+    }
 
-#table-history th:nth-child(8),
-#table-history td:nth-child(8) {
-    width: 8%;
-    min-width: 75px;
-}
+    .data-table td:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
 
-#table-history th:nth-child(9),
-#table-history td:nth-child(9) {
-    width: 7%;
-    min-width: 65px;
-}
+    .data-table td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        color: var(--isbo-blue);
+        text-align: left;
+        padding-right: 15px;
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        flex-shrink: 0;
+    }
+    
+    .data-table td .signature-thumb {
+        margin-left: auto;
+    }
 
-#table-history th:nth-child(10),
-#table-history td:nth-child(10) {
-    width: 8%;
-    min-width: 75px;
-}
-
-#table-history th:nth-child(11),
-#table-history td:nth-child(11) {
-    width: 4%;
-    min-width: 45px;
-}
-
-#table-history th:nth-child(12),
-#table-history td:nth-child(12) {
-    width: 7%;
-    min-width: 70px;
+    .admin-actions-cell {
+        justify-content: flex-end;
+        width: 100%;
+        margin-top: 4px;
+    }
 }
 
 .admin-actions-cell {
@@ -1222,47 +1224,34 @@ canvas {
     line-height: var(--lh-normal);
 }
 
-/* Date Filter Bar */
-.date-filter-bar {
-    display: flex;
-    align-items: flex-end;
-    gap: 16px;
-    padding: 1.5rem 1.5rem;
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 12px;
-    margin-bottom: 2rem;
-    border: 2px solid rgba(0, 69, 138, 0.15);
-    flex-wrap: wrap;
-}
-
-.filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
+/* Date Filter Bar — duplicate removed, see earlier rule */
 
 .filter-group label {
-    font-size: var(--fs-large);
+    font-size: 0.82rem;
     font-weight: 700;
     margin-bottom: 0;
     line-height: var(--lh-normal);
+    color: var(--isbo-blue-dark);
 }
 
-.filter-group input[type="date"] {
-    padding: 10px 14px;
-    border: 2px solid #bbb;
+.filter-group input[type="date"],
+.filter-group select {
+    padding: 9px 12px;
+    border: 2px solid #c5c5c5;
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.95);
-    font-size: var(--fs-base);
+    font-size: 0.88rem;
     transition: all 0.3s ease;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
     line-height: var(--lh-normal);
+    font-family: 'Outfit', sans-serif;
 }
 
-.filter-group input[type="date"]:focus {
+.filter-group input[type="date"]:focus,
+.filter-group select:focus {
     outline: none;
     border-color: var(--isbo-blue);
-    box-shadow: 0 0 0 4px rgba(0, 69, 138, 0.3), inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 0 0 3px rgba(0, 69, 138, 0.2), inset 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
 .btn-sm {
@@ -1455,8 +1444,12 @@ canvas {
 }
 
 #view-admin {
-    max-width: 1200px;
+    max-width: 98vw;
     margin: 0 auto;
+}
+
+#admin-dashboard .glass-card {
+    padding: 2rem;
 }
 
 /* PDF Render Area (used for PDF generation) */
@@ -1675,13 +1668,24 @@ input:disabled {
 
 /* ========== RESPONSIVE DESIGN ========== */
 
+/* Admin panel always uses near-full width */
+@media (min-width: 1025px) {
+    .app-main:has(#view-admin:not(.hidden)) {
+        max-width: 96vw;
+    }
+}
+
 @media (max-width: 1024px) {
     .app-main {
         max-width: 900px;
     }
 
+    .app-main:has(#view-admin:not(.hidden)) {
+        max-width: 98vw;
+    }
+
     .metrics-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(4, 1fr);
     }
 
     .dashboard-header {
@@ -1692,11 +1696,21 @@ input:disabled {
         padding: 10px 14px;
         font-size: var(--fs-small);
     }
+
+    /* Filter bar: 2 rows on tablet, search + dates on top, status + buttons below */
+    .date-filter-bar {
+        flex-wrap: wrap;
+    }
+
+    .filter-group {
+        flex: 1 1 calc(25% - 12px);
+        min-width: 140px;
+    }
 }
 
 @media (max-width: 900px) {
     .app-main {
-        max-width: 800px;
+        max-width: 100%;
     }
 
     .metrics-grid {
@@ -1705,19 +1719,13 @@ input:disabled {
     }
 
     .date-filter-bar {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 12px;
+        gap: 10px;
+        padding: 1rem;
     }
 
     .filter-group {
-        min-width: 100%;
-    }
-
-    .filter-group input[type="date"],
-    .filter-group input[type="text"],
-    .filter-group select {
-        width: 100%;
+        flex: 1 1 calc(50% - 10px);
+        min-width: 120px;
     }
 
     .dashboard-header {
@@ -1735,6 +1743,7 @@ input:disabled {
 
     .dashboard-actions {
         width: 100%;
+        display: flex;
     }
 
     .admin-tabs {
@@ -1745,12 +1754,6 @@ input:disabled {
     .admin-tab-btn {
         padding: 10px 12px;
         font-size: var(--fs-small);
-    }
-
-    .data-table th,
-    .data-table td {
-        padding: 8px 6px;
-        font-size: 0.85rem;
     }
 
     .admin-action-btn {
@@ -1821,31 +1824,23 @@ input:disabled {
         font-size: 13px;
     }
 
+    /* Filter bar: 2-column grid on smaller tablets */
     .date-filter-bar {
-        flex-direction: column;
-        align-items: stretch;
-        padding: 1rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
         gap: 10px;
+        padding: 1rem;
     }
 
     .filter-group {
-        width: 100%;
+        min-width: 0;
     }
 
-    .filter-group label {
-        font-size: var(--fs-small);
-    }
-
-    .filter-group input,
-    .filter-group select {
-        width: 100%;
-        font-size: 16px;
-    }
-
-    .data-table th,
-    .data-table td {
-        padding: 8px 6px;
-        font-size: 0.8rem;
+    /* Action buttons row spans full width */
+    #btn-filter-dates,
+    #btn-clear-filter,
+    #btn-export-filtered-pdf {
+        align-self: end;
     }
 
     .signature-thumb {
@@ -1948,7 +1943,7 @@ input:disabled {
     }
 
     .metrics-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
         gap: 10px;
     }
 
@@ -2001,7 +1996,9 @@ input:disabled {
         flex: 1;
     }
 
+    /* Mobile: stack filter bar vertically */
     .date-filter-bar {
+        display: flex;
         flex-direction: column;
         align-items: stretch;
         padding: 0.8rem;
@@ -2010,6 +2007,7 @@ input:disabled {
 
     .filter-group {
         width: 100%;
+        min-width: 0;
     }
 
     .filter-group label {
@@ -2020,21 +2018,20 @@ input:disabled {
     .filter-group select {
         width: 100%;
         font-size: 15px;
-        padding: 8px 10px;
+        padding: 10px 12px;
+    }
+
+    /* Filter action buttons row */
+    #btn-filter-dates,
+    #btn-clear-filter,
+    #btn-export-filtered-pdf {
+        width: 100%;
+        height: 40px;
     }
 
     .table-responsive {
         border-radius: 6px;
         margin: 0.8rem 0;
-    }
-
-    .data-table th,
-    .data-table td {
-        padding: 6px 4px;
-        font-size: 0.75rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
     }
 
     .signature-thumb {
@@ -2120,12 +2117,6 @@ input:disabled {
     .admin-tab-btn {
         padding: 6px 8px;
         font-size: 11px;
-    }
-
-    .data-table th,
-    .data-table td {
-        font-size: 0.65rem;
-        padding: 4px 3px;
     }
 
     .btn-sm {

@@ -518,6 +518,7 @@ async function loadPendingTable() {
                 <td>${UI.formatDate(loan.checkout_time)}</td>
                 <td>${UI.escapeHTML(loan.ci)}</td>
                 <td>${UI.escapeHTML(loan.name)}</td>
+                <td>${UI.escapeHTML(loan.group_name || '-')}</td>
                 <td>${UI.escapeHTML(loan.equipment_details)}</td>
                 <td>${UI.renderSignatureThumb(loan.checkout_signature, 'Firma de Retiro - ' + loan.name)}</td>
                 <td>${badge}</td>
@@ -624,6 +625,7 @@ function renderHistoryTable(loans, page = 1) {
             <td>${UI.formatDate(loan.checkout_time)}</td>
             <td>${UI.escapeHTML(loan.ci)}</td>
             <td>${UI.escapeHTML(loan.name)}</td>
+            <td>${UI.escapeHTML(loan.group_name || '-')}</td>
             <td>${UI.escapeHTML(loan.equipment_details)}</td>
             <td>${UI.renderSignatureThumb(loan.checkout_signature, 'Firma de Retiro - ' + loan.name)}</td>
             <td>${loan.status === 'returned' ? UI.formatDate(loan.return_time) : '-'}</td>

@@ -13,8 +13,8 @@ session_start();
 
 $host = 'localhost';
 $db_name = 'isbo_prestamos';
-$username = 'admin'; // Cambiar si es necesario en lampp
-$password = 'admin'; // Cambiar si es necesario en lampp
+$username = 'root'; // Cambiar si es necesario en lampp
+$password = 'rootapps2026'; // Cambiar si es necesario en lampp
 
 try {
     $pdo = new PDO("mysql:host=" . $host . ";dbname=" . $db_name . ";charset=utf8", $username, $password);

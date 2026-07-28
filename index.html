@@ -63,12 +63,13 @@
                 <h2><i class="fas fa-laptop" aria-hidden="true"></i> Registrar Retiro</h2>
                 <p class="subtitle">Ingresa tus datos y detalla el equipamiento a retirar.</p>
 
-                <form id="checkout-form" class="dynamic-form">
+                <form id="checkout-form" class="dynamic-form" autocomplete="off" novalidate>
                     <div class="form-group">
                         <label for="ci"><i class="fas fa-id-card" aria-hidden="true"></i> Cédula de Identidad</label>
                         <input type="text" id="ci" name="ci" required placeholder="Ej: 12345678" minlength="7"
                             maxlength="8" pattern="[0-9\-]+" title="Solo números y sin puntos ni guiones"
-                            aria-required="true" aria-describedby="ci-hint">
+                            aria-required="true" aria-describedby="ci-hint" autocomplete="off"
+                            autocapitalize="off" spellcheck="false">
                         <small id="ci-hint" style="display: none;">Ingresa solo números, entre 7 y 8 dígitos</small>
                     </div>
 
@@ -76,11 +77,12 @@
                         <div class="form-group">
                             <label for="name"><i class="fas fa-user" aria-hidden="true"></i> Nombre y Apellido</label>
                             <input type="text" id="name" name="name" required placeholder="Tu nombre completo"
-                                aria-required="true">
+                                aria-required="true" autocomplete="off" autocapitalize="off" spellcheck="false">
                         </div>
                         <div class="form-group">
                             <label for="group"><i class="fas fa-users" aria-hidden="true"></i> Grupo (Opcional)</label>
-                            <input type="text" id="group" name="group" placeholder="Ej: 3º Informática">
+                            <input type="text" id="group" name="group" placeholder="Ej: 3º Informática"
+                                autocomplete="off" autocapitalize="off" spellcheck="false">
                         </div>
                     </div>
 
@@ -90,7 +92,7 @@
                         <div class="equipment-field-row">
                             <textarea id="equipment" name="equipment" required
                                 placeholder="Ej: Ceibalita 002, Cable HDMI, Control Proyector 16..." rows="5"
-                                aria-required="true"></textarea>
+                                aria-required="true" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea>
                             <div class="equipment-suggestions">
                                 <div class="equipment-suggestion-header">
                                     <span>Frecuentes:</span>
@@ -106,6 +108,8 @@
                                         class="btn btn-secondary btn-sm equipment-keyword-btn keywords">Cable HDMI</button>
                                     <button type="button"
                                         class="btn btn-secondary btn-sm equipment-keyword-btn keywords">Parlante</button>
+                                    <button type="button"
+                                        class="btn btn-secondary btn-sm equipment-keyword-btn keywords">Cargador</button>
                                 </div>
                             </div>
                         </div>
@@ -148,7 +152,7 @@
                     <div class="input-with-btn">
                         <input type="text" id="return-ci" autocomplete="off" placeholder="Ingresa tu CI para buscar..."
                             minlength="7" maxlength="8" pattern="[0-9\-]+" title="Solo números y sin puntos ni guiones"
-                            aria-label="Cédula de identidad para búsqueda">
+                            aria-label="Cédula de identidad para búsqueda" autocapitalize="off" spellcheck="false">
                         <button type="button" id="btn-search-loans" class="btn btn-primary"
                             aria-label="Buscar préstamos activos"><i class="fas fa-search" aria-hidden="true"></i>
                             Buscar</button>
@@ -164,7 +168,7 @@
                     </div>
 
                     <div id="return-details" class="hidden mt-4 animate-fade-in">
-                        <form id="return-form" aria-label="Formulario de devolución de equipamiento">
+                        <form id="return-form" aria-label="Formulario de devolución de equipamiento" autocomplete="off" novalidate>
                             <input type="hidden" id="return-loan-id">
 
                             <div class="form-group">
@@ -173,7 +177,8 @@
                                     (Opcional)</label>
                                 <input type="text" id="return-obs"
                                     placeholder="Ej: Falta pila del control, cable dañado..."
-                                    aria-label="Observaciones sobre el estado del equipamiento">
+                                    aria-label="Observaciones sobre el estado del equipamiento" autocomplete="off"
+                                    autocapitalize="off" spellcheck="false">
                             </div>
 
                             <div class="form-group signature-group">
@@ -209,14 +214,14 @@
         <section id="view-admin" class="view-section hidden">
             <div class="card glass-card" id="admin-login-card">
                 <h2><i class="fas fa-lock"></i> Acceso Administrador</h2>
-                <form id="login-form" class="dynamic-form mt-4">
+                <form id="login-form" class="dynamic-form mt-4" autocomplete="off" novalidate>
                     <div class="form-group">
                         <label for="username">Usuario</label>
-                        <input type="text" id="username" required>
+                        <input type="text" id="username" required autocomplete="off" autocapitalize="off" spellcheck="false">
                     </div>
                     <div class="form-group">
                         <label for="password">Contraseña</label>
-                        <input type="password" id="password" required>
+                        <input type="password" id="password" required autocomplete="new-password" autocapitalize="off" spellcheck="false">
                     </div>
                     <button type="submit" class="btn btn-primary btn-block">Ingresar</button>
                 </form>
@@ -390,11 +395,11 @@
                     <button class="modal-close" id="close-edit-loan-modal" aria-label="Cerrar modal"><i
                             class="fas fa-times"></i></button>
                     <h3 id="edit-loan-title"><i class="fas fa-edit"></i> Editar Préstamo</h3>
-                    <form id="edit-loan-form">
+                    <form id="edit-loan-form" autocomplete="off" novalidate>
                         <input type="hidden" id="edit-loan-id">
                         <div class="form-group">
                             <label for="edit-loan-equipment">Descripción del equipamiento</label>
-                            <textarea id="edit-loan-equipment" rows="4" required></textarea>
+                            <textarea id="edit-loan-equipment" rows="4" required autocomplete="off" autocapitalize="off" spellcheck="false"></textarea>
                         </div>
                         <div class="modal-actions">
                             <button type="button" class="btn btn-secondary btn-icon" id="cancel-edit-loan"
